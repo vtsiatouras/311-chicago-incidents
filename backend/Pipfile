@@ -1,0 +1,20 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+coverage = "*"
+django-extensions = "*"
+pylint = "*"
+unittest-xml-reporting = "*"
+werkzeug = "*"
+
+[packages]
+djangorestframework-simplejwt = "*"
+djangorestframework = "~=3.12.1"
+django = "~=3.1.2"
+python-dotenv = "*"
+
+[requires]
+python_version = "3.8"
