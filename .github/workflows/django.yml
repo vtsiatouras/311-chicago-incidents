@@ -30,4 +30,4 @@ jobs:
       run: |
         cd backend/
         pipenv install
-        pipenv run manage.py test
+        pipenv run ./manage.py test
