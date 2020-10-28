@@ -30,6 +30,6 @@ jobs:
         pipenv install --dev
     - name: Run Tests
       run: |
-        pwd
         cd backend/
+        pipenv shell
         python manage.py test
