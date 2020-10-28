@@ -16,20 +16,18 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       max-parallel: 4
-      matrix:
-        python-version: [3.6, 3.7, 3.8]
 
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v2
+    - name: Set up Python
+      uses: actions/setup-python@v1
       with:
-        python-version: ${{ matrix.python-version }}
+        python-version: 3.8
     - name: Install Dependencies
       run: |
         cd backend/
         pip install pipenv
-        pipenv install --deploy --dev
+        pipenv install --dev
     - name: Run Tests
       run: |
         pwd
