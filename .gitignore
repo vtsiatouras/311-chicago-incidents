@@ -27,3 +27,6 @@ reports/
 
 # Logger files
 *.log
+
+# Ignore csv datasets directory
+assist_material/datasets/csv/*
