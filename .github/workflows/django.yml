@@ -29,5 +29,5 @@ jobs:
     - name: Run Tests
       run: |
         cd backend/
-        pipenv install
+        ~/.local/bin/pipenv install
         python manage.py test
