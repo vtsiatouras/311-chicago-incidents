@@ -25,10 +25,9 @@ jobs:
         python-version: 3.8
     - name: Install Dependencies
       run: |
-        cd backend/
-        pip install pipenv
+        python3 -m pip install --user pipenv
     - name: Run Tests
       run: |
         cd backend/
-        pipenv install --dev
+        pipenv install
         python manage.py test
