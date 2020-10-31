@@ -11,11 +11,13 @@ unittest-xml-reporting = "*"
 werkzeug = "*"
 
 [packages]
+dask = {extras = ["dataframe"],version = "*"}
 djangorestframework-simplejwt = "*"
 djangorestframework = "~=3.12.1"
 django = "~=3.1.2"
 python-dotenv = "*"
 psycopg2-binary = "*"
+pandas = "*"
 
 [requires]
 python_version = "3.8"
