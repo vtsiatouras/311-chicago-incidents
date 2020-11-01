@@ -82,12 +82,31 @@ class Incident(AutoCreatedUpdatedModel):
         return self.service_request_number
 
 
-# TODO add foreign keys to incidents table
-# class AbandonedCar(AutoCreatedUpdatedModel):
-#     """Model for abandoned cars
-#     """
+class Vehicle(AutoCreatedUpdatedModel):
+    """Model for abandoned cars
+    """
+    license_plate = models.CharField(max_length=10, unique=True)
+    vehicle_make_model = models.CharField(max_length=15, null=True, blank=True)
+    vehicle_color = models.CharField(max_length=15, null=True, blank=True)
 
-# class Graffiti(AutoCreatedUpdatedModel):
-#     """Model for graffities
-#
-# etc.
+    class Meta:
+        db_table = 'vehicles'
+
+    def __str__(self):
+        """Return the string representation of the incident.
+
+        :return: The service request number.
+        """
+        return self.license_plate
+
+
+class AbandonedVehicle(AutoCreatedUpdatedModel):
+    """Model that holds information about abandoned cars
+    """
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='abandoned_vehicles')
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles')
+    days_of_report_as_parked = models.IntegerField(null=True, blank=True)
+
+    class Meta:
+        db_table = 'abandoned_vehicles'
+        unique_together = ['vehicle', 'incident']
