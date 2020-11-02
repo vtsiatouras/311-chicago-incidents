@@ -25,11 +25,11 @@ from .. import serializers
 @method_decorator(name='partial_update', decorator=utils.swagger_auto_schema(
     operation_summary="Partial update for a user"
 ))
-class UserViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.RetrieveModelMixin,
-                  viewsets.mixins.UpdateModelMixin, viewsets.GenericViewSet):
+class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.RetrieveModelMixin,
+                         viewsets.mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """User view set
     """
-    serializer_class = serializers.UserSerializer
+    serializer_class = serializers.UserProfileSerializer
     queryset = User.objects.all()
 
     def get_queryset(self) -> QuerySet:
@@ -37,7 +37,10 @@ class UserViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.RetrieveMode
 
         :return: The query set
         """
-        return super().get_queryset()
+        queryset = super().get_queryset()
+        user = self.request.user
+        queryset = queryset.filter(pk=user.pk)
+        return queryset
 
     def get_serializer_class(self) -> typing.Type[Serializer]:
         """Get the serializer for the action.
@@ -45,9 +48,9 @@ class UserViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.RetrieveMode
         :return: The serializer.
         """
         if self.action == 'retrieve':
-            return serializers.UserSerializer
+            return serializers.UserProfileSerializer
         elif self.action in ('create', 'update', 'partial_update'):
-            return serializers.UserCreateSerializer
+            return serializers.UserCreateProfileSerializer
 
     def get_permissions(self) -> typing.List[BasePermission]:
         """Return the permissions for the action.

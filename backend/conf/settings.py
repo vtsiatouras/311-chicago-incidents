@@ -160,7 +160,7 @@ USE_TZ = True
 # Authentication user model
 # https://docs.djangoproject.com/en/2.2/topics/auth/customizing/#using-a-custom-user-model-when-starting-a-project
 
-#AUTH_USER_MODEL = 'chicago_incidents.User'
+# AUTH_USER_MODEL = 'chicago_incidents.User'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
@@ -170,6 +170,8 @@ STATIC_URL = '/static/'
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
+# Django caching methods
+# https://docs.djangoproject.com/en/3.1/topics/cache/
 # TODO use a proper caching system
 CACHES = {
     'default': {
@@ -177,7 +179,6 @@ CACHES = {
         'LOCATION': '/var/tmp/django_cache',
     }
 }
-
 
 # REST framework configuration
 # https://www.django-rest-framework.org/api-guide/settings/
@@ -221,7 +222,6 @@ LOGOUT_ON_PASSWORD_CHANGE = False
 # https://drf-yasg.readthedocs.io/en/stable/settings.html#swagger-settings
 
 SWAGGER_SETTINGS = {
-    # 'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
@@ -229,7 +229,6 @@ SWAGGER_SETTINGS = {
             'in': 'header'
         }
     },
-    'LOGIN_URL': '/admin/login',
 }
 
 # Front-end domain
