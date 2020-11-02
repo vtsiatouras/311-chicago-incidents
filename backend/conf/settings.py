@@ -77,7 +77,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_auth',
     'drf_yasg',
     'corsheaders',
@@ -171,6 +170,15 @@ STATIC_URL = '/static/'
 # Session configuration
 SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
+# TODO use a proper caching system
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+        'LOCATION': '/var/tmp/django_cache',
+    }
+}
+
+
 # REST framework configuration
 # https://www.django-rest-framework.org/api-guide/settings/
 
@@ -213,13 +221,15 @@ LOGOUT_ON_PASSWORD_CHANGE = False
 # https://drf-yasg.readthedocs.io/en/stable/settings.html#swagger-settings
 
 SWAGGER_SETTINGS = {
+    # 'USE_SESSION_AUTH': False,
     'SECURITY_DEFINITIONS': {
         'Bearer': {
             'type': 'apiKey',
             'name': 'Authorization',
             'in': 'header'
         }
-    }
+    },
+    'LOGIN_URL': '/admin/login',
 }
 
 # Front-end domain

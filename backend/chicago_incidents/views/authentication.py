@@ -49,10 +49,9 @@ class UserViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.RetrieveMode
         elif self.action in ('create', 'update', 'partial_update'):
             return serializers.UserCreateSerializer
 
-    # def get_permissions(self) -> typing.List[BasePermission]:
-    #     """Return the permissions for the action.
-    #
-    #     :return: An array with the permissions for the action.
-    #     """
-    #     if self.action in ('update', 'partial_update'):
-    #         return [IsAuthenticated()]
+    def get_permissions(self) -> typing.List[BasePermission]:
+        """Return the permissions for the action.
+
+        :return: An array with the permissions for the action.
+        """
+        return super().get_permissions()
