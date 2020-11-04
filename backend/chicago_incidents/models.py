@@ -16,10 +16,10 @@ class Incident(AutoCreatedUpdatedModel):
     """
     OPEN = 'OPEN'
     OPEN_DUP = 'OPEN_DUP'
-    CLOSED = 'CLOSED'
-    CLOSED_DUP = 'CLOSED_DUP'
+    COMPLETED = 'COMPLETED'
+    COMPLETED_DUP = 'COMPLETED_DUP'
     STATUS_TYPE_CHOICES = [
-        (OPEN, 'Open'), (OPEN_DUP, 'Open - Dup'), (CLOSED, 'Closed'), (CLOSED_DUP, 'Closed - Dup')
+        (OPEN, 'Open'), (OPEN_DUP, 'Open - Dup'), (COMPLETED, 'Completed'), (COMPLETED_DUP, 'Completed - Dup')
     ]
 
     ABANDONED_VEHICLE = 'ABANDONED_VEHICLE'
@@ -52,9 +52,9 @@ class Incident(AutoCreatedUpdatedModel):
     completion_date = models.DateTimeField(null=True, blank=True)
     service_request_number = models.CharField(max_length=20)
     type_of_service_request = models.CharField(max_length=30, choices=SERVICE_TYPE_CHOICES)
-    current_activity = models.CharField(max_length=30, null=True, blank=True)
-    most_recent_action = models.CharField(max_length=30, null=True, blank=True)
-    street_address = models.CharField(max_length=50, null=True, blank=True)
+    current_activity = models.CharField(max_length=100, null=True, blank=True)
+    most_recent_action = models.CharField(max_length=100, null=True, blank=True)
+    street_address = models.CharField(max_length=100, null=True, blank=True)
     zip_code = models.IntegerField(null=True, blank=True)
     zip_codes = models.IntegerField(null=True, blank=True)
     x_coordinate = models.DecimalField(max_digits=25, decimal_places=10, null=True, blank=True)
@@ -85,12 +85,13 @@ class Incident(AutoCreatedUpdatedModel):
 class Vehicle(AutoCreatedUpdatedModel):
     """Model for abandoned cars
     """
-    license_plate = models.CharField(max_length=10, unique=True)
-    vehicle_make_model = models.CharField(max_length=15, null=True, blank=True)
-    vehicle_color = models.CharField(max_length=15, null=True, blank=True)
+    license_plate = models.CharField(max_length=400)
+    vehicle_make_model = models.CharField(max_length=100, null=True, blank=True)
+    vehicle_color = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
         db_table = 'vehicles'
+        unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
 
     def __str__(self):
         """Return the string representation of the incident.

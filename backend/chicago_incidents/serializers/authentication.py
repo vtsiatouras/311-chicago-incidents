@@ -27,7 +27,7 @@ class UserCreateProfileSerializer(ModelSerializer):
 
     def validate_email(self, email):
         if User.objects.filter(email=email):
-            raise serializers.ValidationError({'email': "email: '{}' is used on other account".format(email)})
+            raise serializers.ValidationError({'email': f"email: '{email}' is used on other account"})
         return super(UserCreateProfileSerializer, self).validate(email)
 
     def validate_password(self, password):
