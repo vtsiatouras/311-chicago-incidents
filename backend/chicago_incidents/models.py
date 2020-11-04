@@ -101,7 +101,9 @@ class Vehicle(AutoCreatedUpdatedModel):
 
 
 class AbandonedVehicle(AutoCreatedUpdatedModel):
-    """Model that holds information about abandoned cars
+    """Model that holds information about abandoned cars. In that way we can hold one to many relations and more
+    precisely a car can belong to multiple incidents (also it is supported many to many too, one incident can have
+    multiple cars but this is not required)
     """
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='abandoned_vehicles')
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles')
