@@ -47,7 +47,7 @@ jobs:
     - name: Run Tests
       run: |
         cd backend/
-        python -m pytest chicago_incidents --cov=./ --cov-report=xml
+        pipenv run pytest chicago_incidents --cov=./ --cov-report=xml
     - name: Upload Coverage Report
       uses: codecov/codecov-action@v1
       with:
