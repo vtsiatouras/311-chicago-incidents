@@ -1,29 +1,26 @@
 [
   {
-    "model": "chicago_incidents.user",
+    "model": "auth.user",
     "pk": 1,
     "fields": {
-      "created_at": "2020-11-05T16:41:35.326Z",
-      "updated_at": "2020-11-05T16:41:35.326Z",
+      "username": "admin",
       "email": "admin@example.com"
     }
   },
   {
-    "model": "chicago_incidents.user",
+    "model": "auth.user",
     "pk": 2,
     "fields": {
-      "created_at": "2020-11-05T16:41:35.326Z",
-      "updated_at": "2020-11-05T16:41:35.326Z",
+      "username": "user",
       "email": "user@example.com"
     }
   },
   {
-    "model": "chicago_incidents.user",
+    "model": "auth.user",
     "pk": 3,
     "fields": {
-      "created_at": "2020-11-05T16:41:35.326Z",
-      "updated_at": "2020-11-05T16:41:35.326Z",
-      "email": "admin-2@example.com"
+      "username": "admin2",
+      "email": "admin2@example.com"
     }
   }
 ]

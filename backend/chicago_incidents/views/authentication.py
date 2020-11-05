@@ -53,8 +53,9 @@ class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.Retri
             return serializers.UserCreateProfileSerializer
 
     def get_permissions(self) -> typing.List[BasePermission]:
-        """Return the permissions for the action.
-
-        :return: An array with the permissions for the action.
+        """Instantiates and returns the list of permissions that this view requires.
         """
+        if self.action in ('create', 'update', 'partial_update', 'retrieve'):
+            return [IsAuthenticated()]
+
         return super().get_permissions()

@@ -11,5 +11,13 @@ class UserProfileTests(BaseAPITestCase):
     def test_unauthorized(self):
         """Test that unauthorized access fails
         """
-        response = self.client.get(reverse('user-detail'))
-        self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
+        response = self.client.get(reverse('user-detail', kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_user_detail(self):
+        """Test that user cam view his own profile details
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('user-detail', kwargs={'pk': 1}))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
