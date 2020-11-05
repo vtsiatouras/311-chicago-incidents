@@ -4,10 +4,10 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-coverage = "*"
 django-extensions = "*"
 pylint = "*"
-unittest-xml-reporting = "*"
+pytest-django = "*"
+pytest-cov = "*"
 werkzeug = "*"
 
 [packages]
