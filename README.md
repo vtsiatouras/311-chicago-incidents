@@ -74,10 +74,15 @@ python manage.py migrate
 and load the initial data with:
 
 ```bash
-python manage.py import_incidents_from_csvs csv_file
+python manage.py import_incidents_from_csvs [csv_files]
 ```
 
-where `csv_file` is the path of the csv dataset
+where `csv_files` is the path of the csv files (one or more) to import to the database
+
+_Example_
+```bash
+python manage.py import_incidents_from_csvs ../assist_material/datasets/csv/311-service-requests-abandoned-vehicles.csv ../assist_material/datasets/csv/311-service-requests-alley-lights-out.csv ../assist_material/datasets/csv/311-service-requests-pot-holes-reported.csv  
+```
 
 Now you can run the web server with:
 
