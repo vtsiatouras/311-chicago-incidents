@@ -118,3 +118,11 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
     class Meta:
         db_table = 'abandoned_vehicles'
         unique_together = ['vehicle', 'incident']
+
+
+class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
+    """Model that contains number of carts for garbage carts incidents and number of potholes for potholes incidents.
+    These are merged to one table because the data type is exactly the same.
+    """
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='number_of_carts_and_potholes')
+    number_of_elements = models.IntegerField()
