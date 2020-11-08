@@ -57,11 +57,11 @@ class Command(BaseCommand):
         vehicles_hashes = set()
 
         for row in input_df.itertuples(index=False):
-            print(row)
+            # print(row)
 
             if row.license_plate:
-                vehicle = models.Vehicle(license_plate=row.license_plate, vehicle_color=row.vehicle_color,
-                                         vehicle_make_model=row.vehicle_make_model)
+                vehicle = models.AbandonedVehicle(license_plate=row.license_plate, vehicle_color=row.vehicle_color,
+                                                  vehicle_make_model=row.vehicle_make_model)
                 obj_str = f'{str(row.license_plate or "")}{str(row.vehicle_color or "")}' \
                           f'{str(row.vehicle_make_model or "")}'
                 vehicle_hash = hashlib.md5(obj_str.encode())
@@ -71,13 +71,11 @@ class Command(BaseCommand):
 
             # TODO this could be a separate method because all incidents we import will have this chunk of code
             # Retrieve or create the current incident
-            status = self.get_status_type(row.status)
-            request_type = self.get_request_type(row.type_of_service_request)
 
             incident = models.Incident(creation_date=row.creation_date,
-                                       status=status, completion_date=row.completion_date,
+                                       status=self.get_status_type(row.status), completion_date=row.completion_date,
                                        service_request_number=row.service_request_number,
-                                       type_of_service_request=request_type,
+                                       type_of_service_request=self.get_request_type(row.type_of_service_request),
                                        current_activity=row.current_activity,
                                        most_recent_action=row.most_recent_action,
                                        street_address=row.street_address, zip_code=row.zip_code,
@@ -90,9 +88,31 @@ class Command(BaseCommand):
                                        longitude=row.longitude, location=row.location)
             incidents.append(incident)
 
-        models.Vehicle.objects.bulk_create(vehicles)
+        models.AbandonedVehicle.objects.bulk_create(vehicles)
         models.Incident.objects.bulk_create(incidents)
 
+        with transaction.atomic():
+            for row in input_df.itertuples(index=False):
+                try:
+                    abandoned_vehicle = models.AbandonedVehicle.objects.get(license_plate=row.license_plate,
+                                                                            vehicle_color=row.vehicle_color,
+                                                                            vehicle_make_model=row.vehicle_make_model)
+
+                except models.AbandonedVehicle.DoesNotExist:
+                    continue
+
+                incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                       status=self.get_status_type(row.status),
+                                                       completion_date=row.completion_date,
+                                                       service_request_number=row.service_request_number,
+                                                       type_of_service_request=self.get_request_type(
+                                                           row.type_of_service_request),
+                                                       street_address=row.street_address)
+
+                abandoned_vehicle = models. \
+                    AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
+                                             days_of_report_as_parked=row.days_of_report_as_parked)
+                abandoned_vehicle.save()
         for row in input_df.itertuples(index=False):
             try:
                 vehicle = models.Vehicle.objects.get(license_plate=row.license_plate,
