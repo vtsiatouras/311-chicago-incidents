@@ -2,7 +2,8 @@ from django.db import models
 
 
 class AutoCreatedUpdatedModel(models.Model):
-    """Abstract model for entities that track creation and update date.
+    """Helper abstract model for entities that track creation and update date at the database.
+    This is completely irrelevant with the 'creation_date' & 'completion_date' of the incidents.
     """
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -85,7 +86,7 @@ class Incident(AutoCreatedUpdatedModel):
         return self.service_request_number
 
 
-class Vehicle(AutoCreatedUpdatedModel):
+class AbandonedVehicle(AutoCreatedUpdatedModel):
     """Model for abandoned cars
     """
     license_plate = models.CharField(max_length=400)
@@ -93,7 +94,7 @@ class Vehicle(AutoCreatedUpdatedModel):
     vehicle_color = models.CharField(max_length=100, null=True, blank=True)
 
     class Meta:
-        db_table = 'vehicles'
+        db_table = 'abandoned_vehicles'
         unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color'])]
@@ -106,23 +107,67 @@ class Vehicle(AutoCreatedUpdatedModel):
         return self.license_plate
 
 
-class AbandonedVehicle(AutoCreatedUpdatedModel):
+class AbandonedVehicleIncident(AutoCreatedUpdatedModel):
     """Model that holds information about abandoned cars. In that way we can hold one to many relations and more
     precisely a car can belong to multiple incidents (also it is supported many to many too, one incident can have
     multiple cars but this is not required)
     """
-    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='abandoned_vehicles')
-    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles')
+    abandoned_vehicle = models.ForeignKey(AbandonedVehicle, on_delete=models.CASCADE,
+                                          related_name='abandoned_vehicles_incidents')
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles_incidents')
     days_of_report_as_parked = models.BigIntegerField(null=True, blank=True)
 
     class Meta:
-        db_table = 'abandoned_vehicles'
-        unique_together = ['vehicle', 'incident']
+        db_table = 'abandoned_vehicles_incidents'
+        unique_together = ['abandoned_vehicle', 'incident']
 
 
 class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
     """Model that contains number of carts for garbage carts incidents and number of potholes for potholes incidents.
     These are merged to one table because the data type is exactly the same.
     """
-    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='number_of_carts_and_potholes')
     number_of_elements = models.IntegerField()
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='number_of_carts_and_potholes')
+
+    class Meta:
+        db_table = 'number_of_carts_and_potholes'
+
+
+class Graffiti(AutoCreatedUpdatedModel):
+    """Model that contains basic info about a graffiti
+    """
+    surface = models.CharField(max_length=500)
+    location = models.CharField(max_length=500)
+
+    class Meta:
+        db_table = 'graffiti'   # The plural of graffiti is graffiti :)
+
+
+class GraffitiIncident(AutoCreatedUpdatedModel):
+    """Model that holds intermediate connection between graffiti and incidents
+     """
+    graffiti = models.ForeignKey(Graffiti, on_delete=models.CASCADE, related_name='graffiti_incidents')
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='graffiti_incidents')
+
+    class Meta:
+        db_table = 'graffiti_incidents'
+
+
+class Tree(AutoCreatedUpdatedModel):
+    """Model that holds information about the location of tree events. This table is used for 'tree debris`
+    & 'tree trims'
+    """
+    location = models.CharField(max_length=500)
+
+    class Meta:
+        db_table = 'trees'
+
+
+class TreeIncident(AutoCreatedUpdatedModel):
+    """Model that holds intermediate connection between graffiti and incidents
+    """
+    graffiti = models.ForeignKey(Graffiti, on_delete=models.CASCADE, related_name='tree_incidents')
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='tree_incidents')
+
+    class Meta:
+        db_table = 'tree_incidents'
