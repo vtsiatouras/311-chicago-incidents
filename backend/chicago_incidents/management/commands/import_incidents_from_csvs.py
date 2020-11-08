@@ -1,13 +1,11 @@
 import time
 import pandas as pd
 import numpy as np
-import datetime
+import hashlib
 
 from django.core.management.base import BaseCommand, CommandParser
-from chicago_incidents import models
-from django.utils import timezone
 
-datetime.datetime.now(tz=timezone.utc)
+from chicago_incidents import models
 
 
 class Command(BaseCommand):
@@ -52,65 +50,69 @@ class Command(BaseCommand):
                             'ssa', 'latitude', 'longitude', 'location', 'historical_wards_03_15', 'zip_codes',
                             'community_areas', 'census_tracts', 'wards']
 
+        input_df = input_df.drop_duplicates()
+
+        incidents = list()
+        vehicles = list()
+        vehicles_hashes = set()
+
         for row in input_df.itertuples(index=False):
-            # Why we need try/except blocks:
-            # We should to check that the data does not exist already in the database in  case we  imported the same
-            # data multiple times
             print(row)
-            # Retrieve or create the car that is involved to the current incident
+
+            if row.license_plate:
+                vehicle = models.Vehicle(license_plate=row.license_plate, vehicle_color=row.vehicle_color,
+                                         vehicle_make_model=row.vehicle_make_model)
+                obj_str = f'{str(row.license_plate or "")}{str(row.vehicle_color or "")}' \
+                          f'{str(row.vehicle_make_model or "")}'
+                vehicle_hash = hashlib.md5(obj_str.encode())
+                if vehicle_hash.hexdigest() not in vehicles_hashes:
+                    vehicles_hashes.add(vehicle_hash.hexdigest())
+                    vehicles.append(vehicle)
+
+            # TODO this could be a separate method because all incidents we import will have this chunk of code
+            # Retrieve or create the current incident
+            status = self.get_status_type(row.status)
+            request_type = self.get_request_type(row.type_of_service_request)
+
+            incident = models.Incident(creation_date=row.creation_date,
+                                       status=status, completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=request_type,
+                                       current_activity=row.current_activity,
+                                       most_recent_action=row.most_recent_action,
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward,
+                                       wards=row.wards, historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, ssa=row.ssa,
+                                       census_tracts=row.census_tracts, latitude=row.latitude,
+                                       longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.Vehicle.objects.bulk_create(vehicles)
+        models.Incident.objects.bulk_create(incidents)
+
+        for row in input_df.itertuples(index=False):
             try:
                 vehicle = models.Vehicle.objects.get(license_plate=row.license_plate,
                                                      vehicle_color=row.vehicle_color,
                                                      vehicle_make_model=row.vehicle_make_model)
+
             except models.Vehicle.DoesNotExist:
-                # Do not create vehicles with None values
-                if row.license_plate and row.vehicle_color and row.vehicle_make_model:
-                    vehicle = models.Vehicle(license_plate=row.license_plate,
-                                             vehicle_color=row.vehicle_color,
-                                             vehicle_make_model=row.vehicle_make_model)
-                    vehicle.save()
-                else:
-                    vehicle = None
+                continue
 
-            # TODO this could be a separate method because all incidents we import will have this chunk of code
-            # Retrieve or create the current incident
-            try:
-                incident = models.Incident.objects.get(creation_date=row.creation_date,
-                                                       status=self.get_status_type(row.status),
-                                                       completion_date=row.completion_date,
-                                                       service_request_number=row.service_request_number,
-                                                       type_of_service_request=self.get_request_type(
-                                                           row.type_of_service_request),
-                                                       current_activity=row.current_activity,
-                                                       most_recent_action=row.most_recent_action,
-                                                       street_address=row.street_address, zip_code=row.zip_code)
-            except models.Incident.DoesNotExist:
-                incident = models.Incident(creation_date=row.creation_date,
-                                           status=self.get_status_type(row.status),
-                                           completion_date=row.completion_date,
-                                           service_request_number=row.service_request_number,
-                                           type_of_service_request=self.get_request_type(row.type_of_service_request),
-                                           current_activity=row.current_activity,
-                                           most_recent_action=row.most_recent_action,
-                                           street_address=row.street_address, zip_code=row.zip_code,
-                                           zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
-                                           y_coordinate=row.y_coordinate, ward=row.ward, wards=row.wards,
-                                           historical_wards_03_15=row.historical_wards_03_15,
-                                           police_district=row.police_district,
-                                           community_area=row.community_area,
-                                           community_areas=row.community_areas, ssa=row.ssa,
-                                           census_tracts=row.census_tracts, latitude=row.latitude,
-                                           longitude=row.longitude, location=row.location)
-                incident.save()
+            incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                   status=self.get_status_type(row.status),
+                                                   completion_date=row.completion_date,
+                                                   service_request_number=row.service_request_number,
+                                                   type_of_service_request=self.get_request_type(
+                                                       row.type_of_service_request),
+                                                   street_address=row.street_address)
 
-            if vehicle:
-                try:
-                    _ = models.AbandonedVehicle.objects.get(vehicle=vehicle, incident=incident,
-                                                            days_of_report_as_parked=row.days_of_report_as_parked)
-                except models.AbandonedVehicle.DoesNotExist:
-                    abandoned_vehicle = models.AbandonedVehicle(vehicle=vehicle, incident=incident,
-                                                                days_of_report_as_parked=row.days_of_report_as_parked)
-                    abandoned_vehicle.save()
+            abandoned_vehicle = models.AbandonedVehicle(vehicle=vehicle, incident=incident,
+                                                        days_of_report_as_parked=row.days_of_report_as_parked)
+            abandoned_vehicle.save()
 
     @staticmethod
     def get_status_type(value: str) -> str:

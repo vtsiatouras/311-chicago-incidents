@@ -73,6 +73,9 @@ class Incident(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'incidents'
+        # The 1st index is useful for the importers
+        indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
+                                        'type_of_service_request', 'street_address'])]
 
     def __str__(self):
         """Return the string representation of the incident.
@@ -92,6 +95,8 @@ class Vehicle(AutoCreatedUpdatedModel):
     class Meta:
         db_table = 'vehicles'
         unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
+        # The 1st index is useful for the importers
+        indexes = [models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color'])]
 
     def __str__(self):
         """Return the string representation of the incident.
@@ -108,7 +113,7 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
     """
     vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='abandoned_vehicles')
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles')
-    days_of_report_as_parked = models.IntegerField(null=True, blank=True)
+    days_of_report_as_parked = models.BigIntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'abandoned_vehicles'
