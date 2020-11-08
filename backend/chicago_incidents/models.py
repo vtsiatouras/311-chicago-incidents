@@ -76,7 +76,7 @@ class Incident(AutoCreatedUpdatedModel):
         db_table = 'incidents'
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
-                                        'type_of_service_request', 'street_address'])]
+                                        'type_of_service_request', 'street_address']), ]
 
     def __str__(self):
         """Return the string representation of the incident.
@@ -95,9 +95,10 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'abandoned_vehicles'
+        # Constraint to avoid duplication of data
         unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
         # The 1st index is useful for the importers
-        indexes = [models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color'])]
+        indexes = [models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color']), ]
 
     def __str__(self):
         """Return the string representation of the incident.
@@ -108,17 +109,18 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
 
 
 class AbandonedVehicleIncident(AutoCreatedUpdatedModel):
-    """Model that holds information about abandoned cars. In that way we can hold one to many relations and more
-    precisely a car can belong to multiple incidents (also it is supported many to many too, one incident can have
-    multiple cars but this is not required)
+    """Model that holds intermediate connection between abandoned vehicles and incidents. In that way we can hold one to
+    many relations and more precisely a car can belong to multiple incidents (also it is supported many to many too,
+    one incident can have multiple cars but this is not required)
     """
     abandoned_vehicle = models.ForeignKey(AbandonedVehicle, on_delete=models.CASCADE,
                                           related_name='abandoned_vehicles_incidents')
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles_incidents')
-    days_of_report_as_parked = models.BigIntegerField(null=True, blank=True)
+    days_of_report_as_parked = models.BigIntegerField(null=True, blank=True)  # THIS VALUE DIFFERS PER REQUEST!
 
     class Meta:
         db_table = 'abandoned_vehicles_incidents'
+        # Constraint to avoid duplication of data
         unique_together = ['abandoned_vehicle', 'incident']
 
 
@@ -131,6 +133,8 @@ class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'number_of_carts_and_potholes'
+        # Constraint to avoid duplication of data
+        unique_together = ['number_of_elements', 'incident']
 
 
 class Graffiti(AutoCreatedUpdatedModel):
@@ -140,7 +144,10 @@ class Graffiti(AutoCreatedUpdatedModel):
     location = models.CharField(max_length=500)
 
     class Meta:
-        db_table = 'graffiti'   # The plural of graffiti is graffiti :)
+        db_table = 'graffiti'  # The plural of graffiti is graffiti :)
+        # Constraint to avoid duplication of data
+        unique_together = ['surface', 'location']
+        indexes = [models.Index(fields=['surface', 'location']), ]
 
 
 class GraffitiIncident(AutoCreatedUpdatedModel):
@@ -151,23 +158,67 @@ class GraffitiIncident(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'graffiti_incidents'
+        # Constraint to avoid duplication of data
+        unique_together = ['graffiti', 'incident']
 
 
 class Tree(AutoCreatedUpdatedModel):
     """Model that holds information about the location of tree events. This table is used for 'tree debris`
     & 'tree trims'
     """
-    location = models.CharField(max_length=500)
+    location = models.CharField(max_length=500, unique=True)
 
     class Meta:
         db_table = 'trees'
+        indexes = [models.Index(fields=['location']), ]
 
 
 class TreeIncident(AutoCreatedUpdatedModel):
     """Model that holds intermediate connection between graffiti and incidents
     """
-    graffiti = models.ForeignKey(Graffiti, on_delete=models.CASCADE, related_name='tree_incidents')
+    tree = models.ForeignKey(Tree, on_delete=models.CASCADE, related_name='tree_incidents')
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='tree_incidents')
 
     class Meta:
         db_table = 'tree_incidents'
+        # Constraint to avoid duplication of data
+        unique_together = ['tree', 'incident']
+
+
+class RodentBaitingPremises(AutoCreatedUpdatedModel):
+    """Model that holds information about the number of premises of a rodent baiting incident
+    """
+    number_of_premises_baited = models.IntegerField(null=True, blank=True)
+    number_of_premises_w_garbage = models.IntegerField(null=True, blank=True)
+    number_of_premises_w_rats = models.IntegerField(null=True, blank=True)
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='rodent_baiting_premises')
+
+    class Meta:
+        db_table = 'rodent_baiting_premises'
+        # Constraint to avoid duplication of data
+        unique_together = ['number_of_premises_baited', 'number_of_premises_w_garbage', 'number_of_premises_w_rats',
+                           'incident']
+
+
+class SanitationCodeViolation(AutoCreatedUpdatedModel):
+    """Model that holds the codes of violations
+    """
+    nature_of_code_violation = models.CharField(max_length=500, unique=True)
+
+    class Meta:
+        db_table = 'sanitation_code_violations'
+        indexes = [models.Index(fields=['nature_of_code_violation']), ]
+
+
+class CodeViolationIncident(AutoCreatedUpdatedModel):
+    """Model that holds intermediate connection between sanitation code violations and incidents
+    """
+    sanitation_code_violation = models.ForeignKey(SanitationCodeViolation, on_delete=models.CASCADE,
+                                                  related_name='sanitation_code_violations_incidents')
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE,
+                                 related_name='sanitation_code_violations_incidents')
+
+    class Meta:
+        db_table = 'sanitation_code_violations_incidents'
+        # Constraint to avoid duplication of data
+        unique_together = ['sanitation_code_violation', 'incident']
