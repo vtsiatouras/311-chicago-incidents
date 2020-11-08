@@ -4,16 +4,21 @@ url = "https://pypi.org/simple"
 verify_ssl = true
 
 [dev-packages]
-coverage = "*"
 django-extensions = "*"
 pylint = "*"
-unittest-xml-reporting = "*"
+pytest-django = "*"
+pytest-cov = "*"
 werkzeug = "*"
 
 [packages]
-djangorestframework-simplejwt = "*"
-djangorestframework = "~=3.12.1"
 django = "~=3.1.2"
+django-cors-headers = "*"
+django-rest-auth= "*"
+djangorestframework = "~=3.11.2"
+djangorestframework-simplejwt = "*"
+drf-yasg = "*"
+numpy = "*"
+pandas = "*"
 python-dotenv = "*"
 psycopg2-binary = "*"
 
