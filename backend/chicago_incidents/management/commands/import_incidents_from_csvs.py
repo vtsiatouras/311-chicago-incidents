@@ -4,6 +4,7 @@ import numpy as np
 import hashlib
 
 from django.core.management.base import BaseCommand, CommandParser
+from django.db import transaction
 
 from chicago_incidents import models
 
@@ -29,8 +30,12 @@ class Command(BaseCommand):
             self.stdout.write(f"Processing file {input_file}")
             if input_file.endswith('abandoned-vehicles.csv'):
                 self.import_abandoned_vehicles(input_file)
+            elif input_file.endswith('alley-lights-out.csv') or input_file.endswith('street-lights-all-out.csv'):
+                self.import_alley_lights_out_or_street_lights_all_out(input_file)
+            elif input_file.endswith('street-lights-one-out.csv'):
+                self.import_street_lights_one_out(input_file)
             else:
-                self.stdout.write(f"File cannot be processed, skipping.")
+                self.stdout.write(f"File '{input_file}' cannot be processed, skipping.")
 
         end = time.time()
         self.stdout.write(f"Finished importing abandoned vehicles, took {(end - start):.2f} seconds")
@@ -113,26 +118,67 @@ class Command(BaseCommand):
                     AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
                                              days_of_report_as_parked=row.days_of_report_as_parked)
                 abandoned_vehicle.save()
+
+    def import_alley_lights_out_or_street_lights_all_out(self, input_file: str):
+        """Import the requests for alley lights out or street lights all out (works the same for both of them) to the
+        database.
+
+        :param input_file: The file from which to load the requests for lights incidents.
+        """
+        self.stdout.write("Getting requests for alley/street lights all out")
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                            'type_of_service_request', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
+                            'ward', 'police_district', 'community_area', 'latitude', 'longitude', 'location',
+                            'historical_wards_03_15', 'zip_codes', 'community_areas', 'census_tracts', 'wards']
+
+        input_df = input_df.drop_duplicates()
+
+        incidents = list()
+
         for row in input_df.itertuples(index=False):
-            try:
-                vehicle = models.Vehicle.objects.get(license_plate=row.license_plate,
-                                                     vehicle_color=row.vehicle_color,
-                                                     vehicle_make_model=row.vehicle_make_model)
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=self.get_request_type(row.type_of_service_request),
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward, wards=row.wards,
+                                       historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, census_tracts=row.census_tracts,
+                                       latitude=row.latitude, longitude=row.longitude, location=row.location)
+            incidents.append(incident)
 
-            except models.Vehicle.DoesNotExist:
-                continue
+        models.Incident.objects.bulk_create(incidents)
 
-            incident = models.Incident.objects.get(creation_date=row.creation_date,
-                                                   status=self.get_status_type(row.status),
-                                                   completion_date=row.completion_date,
-                                                   service_request_number=row.service_request_number,
-                                                   type_of_service_request=self.get_request_type(
-                                                       row.type_of_service_request),
-                                                   street_address=row.street_address)
+    def import_street_lights_one_out(self, input_file: str):
+        """Import the requests for street lights one out to the database.
 
-            abandoned_vehicle = models.AbandonedVehicle(vehicle=vehicle, incident=incident,
-                                                        days_of_report_as_parked=row.days_of_report_as_parked)
-            abandoned_vehicle.save()
+        :param input_file: The file from which to load the requests for lights incidents.
+        """
+        self.stdout.write("Getting requests for street lights one out")
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                            'type_of_service_request', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
+                            'ward', 'police_district', 'community_area', 'latitude', 'longitude', 'location']
+
+        input_df = input_df.drop_duplicates()
+
+        incidents = list()
+
+        for row in input_df.itertuples(index=False):
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=self.get_request_type(row.type_of_service_request),
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       x_coordinate=row.x_coordinate, y_coordinate=row.y_coordinate, ward=row.ward,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       latitude=row.latitude, longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.Incident.objects.bulk_create(incidents)
 
     @staticmethod
     def get_status_type(value: str) -> str:
