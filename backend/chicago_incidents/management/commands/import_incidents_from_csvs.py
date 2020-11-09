@@ -5,6 +5,7 @@ import hashlib
 
 from django.core.management.base import BaseCommand, CommandParser
 from django.db import transaction
+from datetime import timezone
 
 from chicago_incidents import models
 
@@ -41,11 +42,11 @@ class Command(BaseCommand):
         self.stdout.write(f"Finished importing abandoned vehicles, took {(end - start):.2f} seconds")
 
     def import_abandoned_vehicles(self, input_file: str):
-        """Import the requests for abandoned vehicles to the database.
+        """Import the requests for abandoned abandoned_vehicles to the database.
 
-        :param input_file: The file from which to load the requests for abandoned vehicles.
+        :param input_file: The file from which to load the requests for abandoned abandoned_vehicles.
         """
-        self.stdout.write("Getting requests for abandoned vehicles")
+        self.stdout.write("Getting requests for abandoned abandoned_vehicles")
 
         input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
         input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
@@ -55,30 +56,31 @@ class Command(BaseCommand):
                             'ssa', 'latitude', 'longitude', 'location', 'historical_wards_03_15', 'zip_codes',
                             'community_areas', 'census_tracts', 'wards']
 
-        input_df = input_df.drop_duplicates()
+        input_df = self.dataframe_normalization(input_df)
 
         incidents = list()
-        vehicles = list()
-        vehicles_hashes = set()
+        abandoned_vehicles = list()
+        abandoned_vehicles_hashes = set()
 
         for row in input_df.itertuples(index=False):
             # print(row)
 
             if row.license_plate:
-                vehicle = models.AbandonedVehicle(license_plate=row.license_plate, vehicle_color=row.vehicle_color,
-                                                  vehicle_make_model=row.vehicle_make_model)
+                abandoned_vehicle = models.AbandonedVehicle(license_plate=row.license_plate,
+                                                            vehicle_color=row.vehicle_color,
+                                                            vehicle_make_model=row.vehicle_make_model)
                 obj_str = f'{str(row.license_plate or "")}{str(row.vehicle_color or "")}' \
                           f'{str(row.vehicle_make_model or "")}'
                 vehicle_hash = hashlib.md5(obj_str.encode())
-                if vehicle_hash.hexdigest() not in vehicles_hashes:
-                    vehicles_hashes.add(vehicle_hash.hexdigest())
-                    vehicles.append(vehicle)
+                if vehicle_hash.hexdigest() not in abandoned_vehicles_hashes:
+                    abandoned_vehicles_hashes.add(vehicle_hash.hexdigest())
+                    abandoned_vehicles.append(abandoned_vehicle)
 
             # TODO this could be a separate method because all incidents we import will have this chunk of code
             # Retrieve or create the current incident
 
-            incident = models.Incident(creation_date=row.creation_date,
-                                       status=self.get_status_type(row.status), completion_date=row.completion_date,
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
                                        service_request_number=row.service_request_number,
                                        type_of_service_request=self.get_request_type(row.type_of_service_request),
                                        current_activity=row.current_activity,
@@ -93,9 +95,10 @@ class Command(BaseCommand):
                                        longitude=row.longitude, location=row.location)
             incidents.append(incident)
 
-        models.AbandonedVehicle.objects.bulk_create(vehicles)
+        models.AbandonedVehicle.objects.bulk_create(abandoned_vehicles)
         models.Incident.objects.bulk_create(incidents)
 
+        abandoned_vehicles_incidents = list()
         with transaction.atomic():
             for row in input_df.itertuples(index=False):
                 try:
@@ -117,7 +120,9 @@ class Command(BaseCommand):
                 abandoned_vehicle = models. \
                     AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
                                              days_of_report_as_parked=row.days_of_report_as_parked)
-                abandoned_vehicle.save()
+                abandoned_vehicles_incidents.append(abandoned_vehicle)
+
+        models.AbandonedVehicleIncident.objects.bulk_create(abandoned_vehicles_incidents)
 
     def import_alley_lights_out_or_street_lights_all_out(self, input_file: str):
         """Import the requests for alley lights out or street lights all out (works the same for both of them) to the
@@ -132,7 +137,7 @@ class Command(BaseCommand):
                             'ward', 'police_district', 'community_area', 'latitude', 'longitude', 'location',
                             'historical_wards_03_15', 'zip_codes', 'community_areas', 'census_tracts', 'wards']
 
-        input_df = input_df.drop_duplicates()
+        input_df = self.dataframe_normalization(input_df)
 
         incidents = list()
 
@@ -163,7 +168,7 @@ class Command(BaseCommand):
                             'type_of_service_request', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
                             'ward', 'police_district', 'community_area', 'latitude', 'longitude', 'location']
 
-        input_df = input_df.drop_duplicates()
+        input_df = self.dataframe_normalization(input_df)
 
         incidents = list()
 
@@ -181,13 +186,43 @@ class Command(BaseCommand):
         models.Incident.objects.bulk_create(incidents)
 
     @staticmethod
+    def dataframe_normalization(df: pd.DataFrame) -> pd.DataFrame:
+        """ Normalizes a given dataframe to a desired condition (removes duplicate rows, convert times to timezone
+        aware etc.)
+
+        :param df: A pandas dataframe
+        :return:  The normalized dataframe
+        """
+        df = df.drop_duplicates()
+        df = df[df['type_of_service_request'].notna()]
+
+        df['creation_date'] = pd.to_datetime(df['creation_date'], errors='ignore')
+        df['creation_date'] = df['creation_date'].dt.tz_localize("UTC")
+        df['creation_date'] = df['creation_date'] .replace({np.nan: None})
+        df['completion_date'] = pd.to_datetime(df['completion_date'], errors='ignore')
+        df['completion_date'] = df['completion_date'].dt.tz_localize("UTC")
+        df['completion_date'] = df['completion_date'] .replace({np.nan: None})
+
+        return df
+
+    @staticmethod
     def get_status_type(value: str) -> str:
+        """
+
+        :param value:
+        :return:
+        """
         for x in models.Incident.STATUS_TYPE_CHOICES:
             if x[1] == value:
                 return x[0]
 
     @staticmethod
     def get_request_type(value: str) -> str:
+        """
+
+        :param value:
+        :return:
+        """
         for x in models.Incident.SERVICE_TYPE_CHOICES:
             if x[1] == value:
                 return x[0]
