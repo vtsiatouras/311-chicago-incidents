@@ -24,7 +24,7 @@ class Incident(AutoCreatedUpdatedModel):
     ]
 
     ABANDONED_VEHICLE = 'ABANDONED_VEHICLE'
-    ALLEY_LIGHT_OUT = 'ALLEY_LIGHT_OUT'
+    ALLEY_LIGHTS_OUT = 'ALLEY_LIGHTS_OUT'
     GARBAGE_CART = 'GARBAGE_CART'
     GRAFFITI = 'GRAFFITI'
     POT_HOLE = 'POT_HOLE'
@@ -36,7 +36,7 @@ class Incident(AutoCreatedUpdatedModel):
     TREE_TRIM = 'TREE_TRIM'
     SERVICE_TYPE_CHOICES = [
         (ABANDONED_VEHICLE, 'Abandoned Vehicle Complaint'),
-        (ALLEY_LIGHT_OUT, 'Alley Light Out'),
+        (ALLEY_LIGHTS_OUT, 'Alley Lights Out'),
         (GARBAGE_CART, 'Garbage Cart Black Maintenance/Replacement'),
         (GRAFFITI, 'Graffiti Removal'),
         (POT_HOLE, 'Pothole in Street'),
