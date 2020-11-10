@@ -32,6 +32,8 @@ class Command(BaseCommand):
                 self.import_abandoned_vehicles(input_file)
             elif input_file.endswith('alley-lights-out.csv'):
                 self.import_alley_lights_out_or_street_lights_all_out(input_file, street_lights=False)
+            elif input_file.endswith('garbage-carts.csv'):
+                self.import_garbage_carts(input_file)
             elif input_file.endswith('street-lights-all-out.csv'):
                 self.import_alley_lights_out_or_street_lights_all_out(input_file, street_lights=True)
             elif input_file.endswith('street-lights-one-out.csv'):
@@ -40,14 +42,14 @@ class Command(BaseCommand):
                 self.stdout.write(f"File '{input_file}' cannot be processed, skipping.")
 
         end = time.time()
-        self.stdout.write(f"Finished importing abandoned vehicles, took {(end - start):.2f} seconds")
+        self.stdout.write(f"Finished importing datasets, took {(end - start):.2f} seconds")
 
     def import_abandoned_vehicles(self, input_file: str):
         """Import the requests for abandoned abandoned_vehicles to the database.
 
         :param input_file: The file from which to load the requests for abandoned abandoned_vehicles.
         """
-        self.stdout.write("Getting requests for abandoned abandoned_vehicles")
+        self.stdout.write("Getting requests for abandoned vehicles")
 
         input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
         input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
@@ -116,13 +118,70 @@ class Command(BaseCommand):
                                                        service_request_number=row.service_request_number,
                                                        type_of_service_request=row.type_of_service_request,
                                                        street_address=row.street_address)
-
+                days_of_report_as_parked = row.days_of_report_as_parked
+                if days_of_report_as_parked and days_of_report_as_parked > 1000000:
+                    days_of_report_as_parked = 1000000
                 abandoned_vehicle = models. \
                     AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
-                                             days_of_report_as_parked=row.days_of_report_as_parked)
+                                             days_of_report_as_parked=days_of_report_as_parked)
                 abandoned_vehicles_incidents.append(abandoned_vehicle)
 
         models.AbandonedVehicleIncident.objects.bulk_create(abandoned_vehicles_incidents, batch_size=250000)
+
+    def import_garbage_carts(self, input_file: str):
+        """Import the requests for garbage carts incidents
+
+        :param input_file: he file from which to load the requests for garbage carts incidents.
+        """
+        self.stdout.write("Getting requests for garbage carts")
+
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                            'type_of_service_request', 'number_of_carts', 'current_activity', 'most_recent_action',
+                            'street_address', 'zip_code', 'x_coordinate', 'y_coordinate', 'ward', 'police_district',
+                            'community_area', 'ssa', 'latitude', 'longitude', 'location', 'historical_wards_03_15',
+                            'zip_codes', 'community_areas', 'census_tracts', 'wards']
+
+        input_df = self.dataframe_normalization(input_df, models.Incident.GARBAGE_CART)
+
+        incidents = list()
+
+        for row in input_df.itertuples(index=False):
+            # Retrieve or create the current incident
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=row.type_of_service_request,
+                                       current_activity=row.current_activity,
+                                       most_recent_action=row.most_recent_action,
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward,
+                                       wards=row.wards, historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, ssa=row.ssa,
+                                       census_tracts=row.census_tracts, latitude=row.latitude,
+                                       longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.Incident.objects.bulk_create(incidents, batch_size=250000)
+
+        number_of_carts = list()
+        with transaction.atomic():
+            for row in input_df.itertuples(index=False):
+                if row.number_of_carts:
+                    incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                           status=self.get_status_type(row.status),
+                                                           completion_date=row.completion_date,
+                                                           service_request_number=row.service_request_number,
+                                                           type_of_service_request=row.type_of_service_request,
+                                                           street_address=row.street_address)
+                    carts = models.NumberOfCartsAndPotholes(incident=incident,
+                                                            number_of_elements=row.number_of_carts if
+                                                            row.number_of_carts < 1000000 else 1000000)
+                    number_of_carts.append(carts)
+
+        models.NumberOfCartsAndPotholes.objects.bulk_create(number_of_carts, batch_size=250000)
 
     def import_alley_lights_out_or_street_lights_all_out(self, input_file: str, street_lights: bool):
         """Import the requests for alley lights out or street lights all out (works the same for both of them) to the

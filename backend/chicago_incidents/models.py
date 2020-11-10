@@ -116,7 +116,8 @@ class AbandonedVehicleIncident(AutoCreatedUpdatedModel):
     abandoned_vehicle = models.ForeignKey(AbandonedVehicle, on_delete=models.CASCADE,
                                           related_name='abandoned_vehicles_incidents')
     incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='abandoned_vehicles_incidents')
-    days_of_report_as_parked = models.BigIntegerField(null=True, blank=True)  # THIS VALUE DIFFERS PER REQUEST!
+    # THIS VALUE DIFFERS PER REQUEST!
+    days_of_report_as_parked = models.IntegerField(null=True, blank=True)
 
     class Meta:
         db_table = 'abandoned_vehicles_incidents'
