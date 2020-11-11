@@ -76,7 +76,9 @@ class Incident(AutoCreatedUpdatedModel):
         db_table = 'incidents'
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
-                                        'type_of_service_request', 'street_address']), ]
+                                        'type_of_service_request', 'current_activity', 'street_address']),
+                   models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
+                                        'type_of_service_request', 'street_address'])]
 
     def __str__(self):
         """Return the string representation of the incident.
@@ -89,7 +91,7 @@ class Incident(AutoCreatedUpdatedModel):
 class AbandonedVehicle(AutoCreatedUpdatedModel):
     """Model for abandoned cars
     """
-    license_plate = models.CharField(max_length=400)
+    license_plate = models.CharField(max_length=400, null=True, blank=True)
     vehicle_make_model = models.CharField(max_length=100, null=True, blank=True)
     vehicle_color = models.CharField(max_length=100, null=True, blank=True)
 
@@ -141,8 +143,8 @@ class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
 class Graffiti(AutoCreatedUpdatedModel):
     """Model that contains basic info about a graffiti
     """
-    surface = models.CharField(max_length=500)
-    location = models.CharField(max_length=500)
+    surface = models.CharField(max_length=500, null=True, blank=True)
+    location = models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         db_table = 'graffiti'  # The plural of graffiti is graffiti :)

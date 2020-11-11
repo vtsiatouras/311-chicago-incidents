@@ -33,7 +33,11 @@ class Command(BaseCommand):
             elif input_file.endswith('alley-lights-out.csv'):
                 self.import_alley_lights_out_or_street_lights_all_out(input_file, street_lights=False)
             elif input_file.endswith('garbage-carts.csv'):
-                self.import_garbage_carts(input_file)
+                self.import_garbage_carts_or_potholes(input_file, garbage_carts=True)
+            elif input_file.endswith('pot-holes-reported.csv'):
+                self.import_garbage_carts_or_potholes(input_file, garbage_carts=False)
+            elif input_file.endswith('graffiti-removal.csv'):
+                self.import_graffiti_removal(input_file)
             elif input_file.endswith('street-lights-all-out.csv'):
                 self.import_alley_lights_out_or_street_lights_all_out(input_file, street_lights=True)
             elif input_file.endswith('street-lights-one-out.csv'):
@@ -45,7 +49,7 @@ class Command(BaseCommand):
         self.stdout.write(f"Finished importing datasets, took {(end - start):.2f} seconds")
 
     def import_abandoned_vehicles(self, input_file: str):
-        """Import the requests for abandoned abandoned_vehicles to the database.
+        """ Import the requests for abandoned abandoned_vehicles to the database.
 
         :param input_file: The file from which to load the requests for abandoned abandoned_vehicles.
         """
@@ -64,11 +68,8 @@ class Command(BaseCommand):
         incidents = list()
         abandoned_vehicles = list()
         abandoned_vehicles_hashes = set()
-
         for row in input_df.itertuples(index=False):
-            # print(row)
-
-            if row.license_plate:
+            if any([row.license_plate, row.vehicle_color, row.vehicle_make_model]):
                 abandoned_vehicle = models.AbandonedVehicle(license_plate=row.license_plate,
                                                             vehicle_color=row.vehicle_color,
                                                             vehicle_make_model=row.vehicle_make_model)
@@ -79,9 +80,7 @@ class Command(BaseCommand):
                     abandoned_vehicles_hashes.add(vehicle_hash.hexdigest())
                     abandoned_vehicles.append(abandoned_vehicle)
 
-            # TODO this could be a separate method because all incidents we import will have this chunk of code
             # Retrieve or create the current incident
-
             incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
                                        completion_date=row.completion_date,
                                        service_request_number=row.service_request_number,
@@ -117,9 +116,10 @@ class Command(BaseCommand):
                                                        completion_date=row.completion_date,
                                                        service_request_number=row.service_request_number,
                                                        type_of_service_request=row.type_of_service_request,
+                                                       current_activity=row.current_activity,
                                                        street_address=row.street_address)
                 days_of_report_as_parked = row.days_of_report_as_parked
-                if days_of_report_as_parked and days_of_report_as_parked > 1000000:
+                if days_of_report_as_parked and int(days_of_report_as_parked) > 1000000:
                     days_of_report_as_parked = 1000000
                 abandoned_vehicle = models. \
                     AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
@@ -128,26 +128,38 @@ class Command(BaseCommand):
 
         models.AbandonedVehicleIncident.objects.bulk_create(abandoned_vehicles_incidents, batch_size=250000)
 
-    def import_garbage_carts(self, input_file: str):
-        """Import the requests for garbage carts incidents
+    def import_garbage_carts_or_potholes(self, input_file: str, garbage_carts: bool):
+        """ Import the requests for garbage carts incidents
 
-        :param input_file: he file from which to load the requests for garbage carts incidents.
+        :param input_file: The file from which to load the requests for garbage carts incidents.
+        :param garbage_carts: Indicator if the method is called for garbage carts or not
         """
-        self.stdout.write("Getting requests for garbage carts")
+        if garbage_carts:
+            self.stdout.write("Getting requests for garbage carts")
+        else:
+            self.stdout.write("Getting requests for potholes")
 
         input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
-        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
-                            'type_of_service_request', 'number_of_carts', 'current_activity', 'most_recent_action',
-                            'street_address', 'zip_code', 'x_coordinate', 'y_coordinate', 'ward', 'police_district',
-                            'community_area', 'ssa', 'latitude', 'longitude', 'location', 'historical_wards_03_15',
-                            'zip_codes', 'community_areas', 'census_tracts', 'wards']
 
-        input_df = self.dataframe_normalization(input_df, models.Incident.GARBAGE_CART)
+        if garbage_carts:
+            input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                                'type_of_service_request', 'number_of_elements', 'current_activity',
+                                'most_recent_action', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
+                                'ward', 'police_district', 'community_area', 'ssa', 'latitude', 'longitude',
+                                'location', 'historical_wards_03_15', 'zip_codes', 'community_areas',
+                                'census_tracts', 'wards']
+            input_df = self.dataframe_normalization(input_df, models.Incident.GARBAGE_CART)
+        else:
+            input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                                'type_of_service_request', 'current_activity', 'most_recent_action',
+                                'number_of_elements', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
+                                'ward', 'police_district', 'community_area', 'ssa', 'latitude', 'longitude',
+                                'location', 'historical_wards_03_15', 'zip_codes', 'community_areas',
+                                'census_tracts', 'wards']
+            input_df = self.dataframe_normalization(input_df, models.Incident.POT_HOLE)
 
         incidents = list()
-
         for row in input_df.itertuples(index=False):
-            # Retrieve or create the current incident
             incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
                                        completion_date=row.completion_date,
                                        service_request_number=row.service_request_number,
@@ -166,25 +178,94 @@ class Command(BaseCommand):
 
         models.Incident.objects.bulk_create(incidents, batch_size=250000)
 
-        number_of_carts = list()
+        number_of_elements = list()
         with transaction.atomic():
             for row in input_df.itertuples(index=False):
-                if row.number_of_carts:
+                if row.number_of_elements:
+                    number_of_elements_to_int = row.number_of_elements
+                    if int(number_of_elements_to_int) > 1000000:
+                        number_of_elements_to_int = 1000000
                     incident = models.Incident.objects.get(creation_date=row.creation_date,
                                                            status=self.get_status_type(row.status),
                                                            completion_date=row.completion_date,
                                                            service_request_number=row.service_request_number,
                                                            type_of_service_request=row.type_of_service_request,
+                                                           current_activity=row.current_activity,
                                                            street_address=row.street_address)
-                    carts = models.NumberOfCartsAndPotholes(incident=incident,
-                                                            number_of_elements=row.number_of_carts if
-                                                            row.number_of_carts < 1000000 else 1000000)
-                    number_of_carts.append(carts)
+                    elements = models.NumberOfCartsAndPotholes(incident=incident,
+                                                               number_of_elements=number_of_elements_to_int)
+                    number_of_elements.append(elements)
 
-        models.NumberOfCartsAndPotholes.objects.bulk_create(number_of_carts, batch_size=250000)
+        models.NumberOfCartsAndPotholes.objects.bulk_create(number_of_elements, batch_size=250000)
+
+    def import_graffiti_removal(self, input_file: str):
+        """ Import the requests for graffiti removal incidents
+
+        :param input_file: The file from which to load the requests for graffiti removal incidents.
+        """
+        self.stdout.write("Getting requests for graffiti removal")
+
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                            'type_of_service_request', 'surface', 'graffiti_location', 'street_address',
+                            'zip_code', 'x_coordinate', 'y_coordinate', 'ward', 'police_district', 'community_area',
+                            'ssa', 'latitude', 'longitude', 'location', 'historical_wards_03_15', 'zip_codes',
+                            'community_areas', 'census_tracts', 'wards']
+
+        input_df = self.dataframe_normalization(input_df, models.Incident.GRAFFITI)
+
+        incidents = list()
+        graffiti_list = list()
+        graffiti_hashes = set()
+        for row in input_df.itertuples(index=False):
+            if any([row.surface, row.graffiti_location]):
+                graffiti = models.Graffiti(surface=row.surface, location=row.graffiti_location)
+                obj_str = f'{str(row.surface or "")}{str(row.graffiti_location or "")}'
+                graffiti_hash = hashlib.md5(obj_str.encode())
+                if graffiti_hash.hexdigest() not in graffiti_hashes:
+                    graffiti_hashes.add(graffiti_hash.hexdigest())
+                    graffiti_list.append(graffiti)
+
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=row.type_of_service_request,
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward,
+                                       wards=row.wards, historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, ssa=row.ssa,
+                                       census_tracts=row.census_tracts, latitude=row.latitude,
+                                       longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.Incident.objects.bulk_create(incidents, batch_size=250000)
+        models.Graffiti.objects.bulk_create(graffiti_list, batch_size=250000)
+
+        graffiti_incidents = list()
+        with transaction.atomic():
+            for row in input_df.itertuples(index=False):
+                try:
+                    graffiti = models.Graffiti.objects.get(surface=row.surface, location=row.graffiti_location)
+
+                except models.Graffiti.DoesNotExist:
+                    continue
+
+                incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                       status=self.get_status_type(row.status),
+                                                       completion_date=row.completion_date,
+                                                       service_request_number=row.service_request_number,
+                                                       type_of_service_request=row.type_of_service_request,
+                                                       street_address=row.street_address)
+
+                graffiti_incident = models.GraffitiIncident(graffiti=graffiti, incident=incident)
+                graffiti_incidents.append(graffiti_incident)
+
+        models.GraffitiIncident.objects.bulk_create(graffiti_incidents, batch_size=250000)
 
     def import_alley_lights_out_or_street_lights_all_out(self, input_file: str, street_lights: bool):
-        """Import the requests for alley lights out or street lights all out (works the same for both of them) to the
+        """ Import the requests for alley lights out or street lights all out (works the same for both of them) to the
         database.
 
         :param input_file: The file from which to load the requests for lights incidents.
@@ -225,7 +306,7 @@ class Command(BaseCommand):
         models.Incident.objects.bulk_create(incidents, batch_size=250000)
 
     def import_street_lights_one_out(self, input_file: str):
-        """Import the requests for street lights one out to the database.
+        """ Import the requests for street lights one out to the database.
 
         :param input_file: The file from which to load the requests for lights incidents.
         """
@@ -263,7 +344,8 @@ class Command(BaseCommand):
         """
         df = df.copy(deep=True)
 
-        df = df.drop_duplicates()
+        df = df.drop_duplicates(['creation_date', 'status', 'completion_date', 'service_request_number',
+                                 'type_of_service_request', 'street_address', 'zip_code'], keep='last')
 
         # Normalize type_of_service_request with the given
         df['type_of_service_request'] = df['type_of_service_request'].str.replace(r'.+', request_type)
