@@ -77,8 +77,7 @@ class Incident(AutoCreatedUpdatedModel):
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
                                         'type_of_service_request', 'current_activity', 'street_address']),
-                   models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
-                                        'type_of_service_request', 'street_address'])]
+                   ]
 
     def __str__(self):
         """Return the string representation of the incident.
