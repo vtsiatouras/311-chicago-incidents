@@ -34,10 +34,18 @@ class Command(BaseCommand):
                 self.import_alley_lights_out_or_street_lights_all_out(input_file, street_lights=False)
             elif input_file.endswith('garbage-carts.csv'):
                 self.import_garbage_carts_or_potholes(input_file, garbage_carts=True)
-            elif input_file.endswith('pot-holes-reported.csv'):
-                self.import_garbage_carts_or_potholes(input_file, garbage_carts=False)
             elif input_file.endswith('graffiti-removal.csv'):
                 self.import_graffiti_removal(input_file)
+            elif input_file.endswith('pot-holes-reported.csv'):
+                self.import_garbage_carts_or_potholes(input_file, garbage_carts=False)
+            elif input_file.endswith('rodent-baiting.csv'):
+                self.import_rodent_baiting(input_file)
+            elif input_file.endswith('sanitation-code-complaints.csv'):
+                self.import_sanitation_complaints(input_file)
+            elif input_file.endswith('tree-debris.csv'):
+                self.import_tree_incidents(input_file, debris=True)
+            elif input_file.endswith('tree-trims.csv'):
+                self.import_tree_incidents(input_file, debris=False)
             elif input_file.endswith('street-lights-all-out.csv'):
                 self.import_alley_lights_out_or_street_lights_all_out(input_file, street_lights=True)
             elif input_file.endswith('street-lights-one-out.csv'):
@@ -103,28 +111,29 @@ class Command(BaseCommand):
         abandoned_vehicles_incidents = list()
         with transaction.atomic():
             for row in input_df.itertuples(index=False):
-                try:
-                    abandoned_vehicle = models.AbandonedVehicle.objects.get(license_plate=row.license_plate,
-                                                                            vehicle_color=row.vehicle_color,
-                                                                            vehicle_make_model=row.vehicle_make_model)
+                if any([row.license_plate, row.vehicle_color, row.vehicle_make_model]):
+                    try:
+                        abandoned_vehicle = models.AbandonedVehicle.objects. \
+                            get(license_plate=row.license_plate, vehicle_color=row.vehicle_color,
+                                vehicle_make_model=row.vehicle_make_model)
 
-                except models.AbandonedVehicle.DoesNotExist:
-                    continue
+                    except models.AbandonedVehicle.DoesNotExist:
+                        continue
 
-                incident = models.Incident.objects.get(creation_date=row.creation_date,
-                                                       status=self.get_status_type(row.status),
-                                                       completion_date=row.completion_date,
-                                                       service_request_number=row.service_request_number,
-                                                       type_of_service_request=row.type_of_service_request,
-                                                       current_activity=row.current_activity,
-                                                       street_address=row.street_address)
-                days_of_report_as_parked = row.days_of_report_as_parked
-                if days_of_report_as_parked and int(days_of_report_as_parked) > 1000000:
-                    days_of_report_as_parked = 1000000
-                abandoned_vehicle = models. \
-                    AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
-                                             days_of_report_as_parked=days_of_report_as_parked)
-                abandoned_vehicles_incidents.append(abandoned_vehicle)
+                    incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                           status=self.get_status_type(row.status),
+                                                           completion_date=row.completion_date,
+                                                           service_request_number=row.service_request_number,
+                                                           type_of_service_request=row.type_of_service_request,
+                                                           current_activity=row.current_activity,
+                                                           street_address=row.street_address)
+                    days_of_report_as_parked = row.days_of_report_as_parked
+                    if days_of_report_as_parked and int(days_of_report_as_parked) > 1000000:
+                        days_of_report_as_parked = 1000000
+                    abandoned_vehicles_incident = models. \
+                        AbandonedVehicleIncident(abandoned_vehicle=abandoned_vehicle, incident=incident,
+                                                 days_of_report_as_parked=days_of_report_as_parked)
+                    abandoned_vehicles_incidents.append(abandoned_vehicles_incident)
 
         models.AbandonedVehicleIncident.objects.bulk_create(abandoned_vehicles_incidents, batch_size=250000)
 
@@ -246,23 +255,245 @@ class Command(BaseCommand):
         graffiti_incidents = list()
         with transaction.atomic():
             for row in input_df.itertuples(index=False):
-                try:
-                    graffiti = models.Graffiti.objects.get(surface=row.surface, location=row.graffiti_location)
+                if any([row.surface, row.graffiti_location]):
+                    try:
+                        graffiti = models.Graffiti.objects.get(surface=row.surface, location=row.graffiti_location)
 
-                except models.Graffiti.DoesNotExist:
-                    continue
+                    except models.Graffiti.DoesNotExist:
+                        continue
 
-                incident = models.Incident.objects.get(creation_date=row.creation_date,
-                                                       status=self.get_status_type(row.status),
-                                                       completion_date=row.completion_date,
-                                                       service_request_number=row.service_request_number,
-                                                       type_of_service_request=row.type_of_service_request,
-                                                       street_address=row.street_address)
+                    incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                           status=self.get_status_type(row.status),
+                                                           completion_date=row.completion_date,
+                                                           service_request_number=row.service_request_number,
+                                                           type_of_service_request=row.type_of_service_request,
+                                                           street_address=row.street_address)
 
-                graffiti_incident = models.GraffitiIncident(graffiti=graffiti, incident=incident)
-                graffiti_incidents.append(graffiti_incident)
+                    graffiti_incident = models.GraffitiIncident(graffiti=graffiti, incident=incident)
+                    graffiti_incidents.append(graffiti_incident)
 
         models.GraffitiIncident.objects.bulk_create(graffiti_incidents, batch_size=250000)
+
+    def import_rodent_baiting(self, input_file: str):
+        """ Import the requests for rodent baiting incidents to the database
+
+        :param input_file: The file from which to load the requests for rodent baiting incidents.
+        """
+        self.stdout.write("Getting requests for rodent baiting")
+
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                            'type_of_service_request', 'number_of_premises_baited', 'number_of_premises_w_garbage',
+                            'number_of_premises_w_rats', 'current_activity', 'most_recent_action', 'street_address',
+                            'zip_code', 'x_coordinate', 'y_coordinate', 'ward', 'police_district', 'community_area',
+                            'latitude', 'longitude', 'location', 'historical_wards_03_15', 'zip_codes',
+                            'community_areas', 'census_tracts', 'wards']
+
+        input_df = self.dataframe_normalization(input_df, models.Incident.RODENT_BAITING)
+
+        incidents = list()
+        for row in input_df.itertuples(index=False):
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=row.type_of_service_request,
+                                       current_activity=row.current_activity,
+                                       most_recent_action=row.most_recent_action,
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward,
+                                       wards=row.wards, historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, census_tracts=row.census_tracts,
+                                       latitude=row.latitude, longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.Incident.objects.bulk_create(incidents, batch_size=250000)
+
+        rodent_baiting_premises = list()
+        with transaction.atomic():
+            for row in input_df.itertuples(index=False):
+                if any([row.number_of_premises_baited, row.number_of_premises_w_garbage,
+                        row.number_of_premises_w_rats]):
+                    incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                           status=self.get_status_type(row.status),
+                                                           completion_date=row.completion_date,
+                                                           service_request_number=row.service_request_number,
+                                                           type_of_service_request=row.type_of_service_request,
+                                                           current_activity=row.current_activity,
+                                                           street_address=row.street_address)
+                    rodent_baiting = models. \
+                        RodentBaitingPremises(number_of_premises_baited=row.number_of_premises_baited,
+                                              number_of_premises_w_garbage=row.number_of_premises_w_garbage,
+                                              number_of_premises_w_rats=row.number_of_premises_w_rats,
+                                              incident=incident)
+                    rodent_baiting_premises.append(rodent_baiting)
+
+        models.RodentBaitingPremises.objects.bulk_create(rodent_baiting_premises, batch_size=250000)
+
+    def import_sanitation_complaints(self, input_file: str):
+        """ Import the requests for sanitation code complaints requests to tha database.
+
+        :param input_file: The file from which to load the requests for sanitation code violations.
+        """
+        self.stdout.write("Getting requests for sanitation code complaints")
+
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+        input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                            'type_of_service_request', 'nature_of_code_violation', 'street_address',
+                            'zip_code', 'x_coordinate', 'y_coordinate', 'ward', 'police_district', 'community_area',
+                            'latitude', 'longitude', 'location', 'historical_wards_03_15', 'zip_codes',
+                            'community_areas', 'census_tracts', 'wards']
+
+        input_df = self.dataframe_normalization(input_df, models.Incident.SANITATION_CODE)
+
+        incidents = list()
+        code_violations = list()
+        code_violations_hashes = set()
+        for row in input_df.itertuples(index=False):
+            if row.nature_of_code_violation:
+                code_violation = models.SanitationCodeViolation(nature_of_code_violation=row.nature_of_code_violation)
+                obj_str = f'{str(row.nature_of_code_violation or "")}'
+                code_violation_hash = hashlib.md5(obj_str.encode())
+                if code_violation_hash.hexdigest() not in code_violations_hashes:
+                    code_violations_hashes.add(code_violation_hash.hexdigest())
+                    code_violations.append(code_violation)
+
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=row.type_of_service_request,
+                                       street_address=row.street_address, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward,
+                                       wards=row.wards, historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, census_tracts=row.census_tracts,
+                                       latitude=row.latitude, longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.SanitationCodeViolation.objects.bulk_create(code_violations, batch_size=250000)
+        models.Incident.objects.bulk_create(incidents, batch_size=250000)
+
+        sanitation_code_incidents = list()
+        with transaction.atomic():
+            for row in input_df.itertuples(index=False):
+                if row.nature_of_code_violation:
+                    try:
+                        sanitation_code = models.SanitationCodeViolation.objects.get(nature_of_code_violation=
+                                                                                     row.nature_of_code_violation)
+
+                    except models.SanitationCodeViolation.DoesNotExist:
+                        continue
+
+                    incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                           status=self.get_status_type(row.status),
+                                                           completion_date=row.completion_date,
+                                                           service_request_number=row.service_request_number,
+                                                           type_of_service_request=row.type_of_service_request,
+                                                           street_address=row.street_address)
+                    sanitation_code_incident = models.\
+                        SanitationCodeViolationIncident(sanitation_code_violation=sanitation_code, incident=incident)
+                    sanitation_code_incidents.append(sanitation_code_incident)
+
+        models.SanitationCodeViolationIncident.objects.bulk_create(sanitation_code_incidents, batch_size=250000)
+
+    def import_tree_incidents(self, input_file: str, debris: bool):
+        """ Import the requests that refer to tree incidents (debris & trims) to the database.
+
+        :param input_file: The file from which to load the requests for tree incidents.
+        :param debris: Indicator if the method is called for tree debris or not
+        """
+        if debris:
+            self.stdout.write("Getting requests for tree debris")
+        else:
+            self.stdout.write("Getting requests for tree trims")
+
+        input_df = pd.read_csv(input_file, sep=',').replace({np.nan: None})
+
+        if debris:
+            input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                                'type_of_service_request', 'location', 'current_activity',
+                                'most_recent_action', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
+                                'ward', 'police_district', 'community_area', 'latitude', 'longitude',
+                                'location', 'historical_wards_03_15', 'zip_codes', 'community_areas',
+                                'census_tracts', 'wards']
+            input_df = self.dataframe_normalization(input_df, models.Incident.TREE_DEBRIS)
+        else:
+            input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                                'type_of_service_request', 'location', 'street_address', 'zip_code', 'x_coordinate',
+                                'y_coordinate', 'ward', 'police_district', 'community_area', 'latitude', 'longitude',
+                                'location', 'historical_wards_03_15', 'zip_codes', 'community_areas',
+                                'census_tracts', 'wards']
+            input_df = self.dataframe_normalization(input_df, models.Incident.TREE_TRIM)
+
+        incidents = list()
+        trees = list()
+        trees_hashes = set()
+        for row in input_df.itertuples(index=False):
+            if row.location:
+                obj_str = f'{str(row.location or "")}'
+                tree_hash = hashlib.md5(obj_str.encode())
+                if tree_hash.hexdigest() not in trees_hashes:
+                    trees_hashes.add(tree_hash.hexdigest())
+                    # Check if the tree is already stored in case we imported before a tree incident
+                    try:
+                        _ = models.Tree.objects.get(location=row.location)
+                    except models.Tree.DoesNotExist:
+                        tree = models.Tree(location=row.location)
+                        trees.append(tree)
+
+            try:
+                current_activity = row.current_activity
+            except AttributeError:
+                current_activity = None
+            try:
+                most_recent_action = row.most_recent_action
+            except AttributeError:
+                most_recent_action = None
+
+            incident = models.Incident(creation_date=row.creation_date, status=self.get_status_type(row.status),
+                                       completion_date=row.completion_date,
+                                       service_request_number=row.service_request_number,
+                                       type_of_service_request=row.type_of_service_request,
+                                       street_address=row.street_address, current_activity=current_activity,
+                                       most_recent_action=most_recent_action, zip_code=row.zip_code,
+                                       zip_codes=row.zip_codes, x_coordinate=row.x_coordinate,
+                                       y_coordinate=row.y_coordinate, ward=row.ward,
+                                       wards=row.wards, historical_wards_03_15=row.historical_wards_03_15,
+                                       police_district=row.police_district, community_area=row.community_area,
+                                       community_areas=row.community_areas, census_tracts=row.census_tracts,
+                                       latitude=row.latitude, longitude=row.longitude, location=row.location)
+            incidents.append(incident)
+
+        models.Tree.objects.bulk_create(trees, batch_size=250000)
+        models.Incident.objects.bulk_create(incidents, batch_size=250000)
+
+        trees_incidents = list()
+        with transaction.atomic():
+            for row in input_df.itertuples(index=False):
+                if row.location:
+                    try:
+                        tree = models.Tree.objects.get(location=row.location)
+
+                    except models.Tree.DoesNotExist:
+                        continue
+
+                    try:
+                        current_activity = row.current_activity
+                    except AttributeError:
+                        current_activity = None
+                    incident = models.Incident.objects.get(creation_date=row.creation_date,
+                                                           status=self.get_status_type(row.status),
+                                                           completion_date=row.completion_date,
+                                                           service_request_number=row.service_request_number,
+                                                           type_of_service_request=row.type_of_service_request,
+                                                           current_activity=current_activity,
+                                                           street_address=row.street_address)
+                    tree_incident = models.TreeIncident(tree=tree, incident=incident)
+                    trees_incidents.append(tree_incident)
+
+        models.TreeIncident.objects.bulk_create(trees_incidents, batch_size=250000)
 
     def import_alley_lights_out_or_street_lights_all_out(self, input_file: str, street_lights: bool):
         """ Import the requests for alley lights out or street lights all out (works the same for both of them) to the

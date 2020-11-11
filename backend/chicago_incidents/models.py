@@ -212,7 +212,7 @@ class SanitationCodeViolation(AutoCreatedUpdatedModel):
         indexes = [models.Index(fields=['nature_of_code_violation']), ]
 
 
-class CodeViolationIncident(AutoCreatedUpdatedModel):
+class SanitationCodeViolationIncident(AutoCreatedUpdatedModel):
     """Model that holds intermediate connection between sanitation code violations and incidents
     """
     sanitation_code_violation = models.ForeignKey(SanitationCodeViolation, on_delete=models.CASCADE,
