@@ -1,8 +1,8 @@
 # 311 Chicago Incidents
 
-[![Django CI](https://github.com/VangelisTsiatouras/311-chicago-incidents/workflows/Django%20CI/badge.svg)](https://github.com/VangelisTsiatouras/311-chicago-incidents/actions)  [![codecov](https://codecov.io/gh/VangelisTsiatouras/311-chicago-incidents/branch/main/graph/badge.svg?token=2FOFQE6PH3)](https://codecov.io/gh/VangelisTsiatouras/311-chicago-incidents)
+[![Django CI](https://github.com/VangelisTsiatouras/311-chicago-incidents/workflows/Django%20CI/badge.svg)](https://github.com/VangelisTsiatouras/311-chicago-incidents/actions)  [![Vue.js CI](https://github.com/VangelisTsiatouras/311-chicago-incidents/workflows/Vue.js%20CI/badge.svg)](https://github.com/VangelisTsiatouras/311-chicago-incidents/actions)  [![codecov](https://codecov.io/gh/VangelisTsiatouras/311-chicago-incidents/branch/main/graph/badge.svg?token=2FOFQE6PH3)](https://codecov.io/gh/VangelisTsiatouras/311-chicago-incidents)
 
-<img src="https://img.shields.io/badge/django%20-%23092E20.svg?&style=for-the-badge&logo=django&logoColor=white"/>  <img src ="https://img.shields.io/badge/postgres-%23316192.svg?&style=for-the-badge&logo=postgresql&logoColor=white"/>
+<img src="https://img.shields.io/badge/django%20-%23092E20.svg?&style=for-the-badge&logo=django&logoColor=white"/>  <img src ="https://img.shields.io/badge/postgres-%23316192.svg?&style=for-the-badge&logo=postgresql&logoColor=white"/>  <img src="https://img.shields.io/badge/vuejs%20-%2335495e.svg?&style=for-the-badge&logo=vue.js&logoColor=%234FC08D"/>
 
 This repository contains 2 applications, DjangoREST &amp; Vue.js, that visualize some metrics &amp; stats for the incidents that happen to Chicago City.
 
@@ -91,3 +91,28 @@ python manage.py runserver
 ```
 
 The API is available at http://127.0.0.1:8000/
+
+## Vue.js Application
+
+### Project setup
+```
+yarn install
+```
+
+### Compiles and hot-reloads for development
+```
+yarn serve
+```
+
+### Compiles and minifies for production
+```
+yarn build
+```
+
+### Lints and fixes files
+```
+yarn lint
+```
+
+### Customize configuration
+See [Configuration Reference](https://cli.vuejs.org/config/).
