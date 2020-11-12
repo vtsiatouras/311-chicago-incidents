@@ -1,4 +1,4 @@
-name: 311 Chicago Incidents CI
+name: 311 Chicago Incidents Backend CI
 
 on: [push]
 
