@@ -53,8 +53,6 @@ class Incident(AutoCreatedUpdatedModel):
     completion_date = models.DateTimeField(null=True, blank=True)
     service_request_number = models.CharField(max_length=20)
     type_of_service_request = models.CharField(max_length=30, choices=SERVICE_TYPE_CHOICES)
-    current_activity = models.CharField(max_length=100, null=True, blank=True)
-    most_recent_action = models.CharField(max_length=100, null=True, blank=True)
     street_address = models.CharField(max_length=100, null=True, blank=True)
     zip_code = models.IntegerField(null=True, blank=True)
     zip_codes = models.IntegerField(null=True, blank=True)
@@ -76,7 +74,7 @@ class Incident(AutoCreatedUpdatedModel):
         db_table = 'incidents'
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
-                                        'type_of_service_request', 'current_activity', 'street_address']),
+                                        'type_of_service_request', 'street_address']),
                    ]
 
     def __str__(self):
@@ -85,6 +83,32 @@ class Incident(AutoCreatedUpdatedModel):
         :return: The service request number.
         """
         return self.service_request_number
+
+
+class Activity(AutoCreatedUpdatedModel):
+    """Model that holds the activities that applied to the incidents
+    """
+    current_activity = models.CharField(max_length=100, null=True, blank=True)
+    most_recent_action = models.CharField(max_length=100, null=True, blank=True)
+
+    class Meta:
+        db_table = 'activities'
+        # Constraint to avoid duplication of data
+        unique_together = ['current_activity', 'most_recent_action']
+        # The 1st index is useful for the importers
+        indexes = [models.Index(fields=['current_activity', 'most_recent_action']), ]
+
+
+class ActivityIncident(AutoCreatedUpdatedModel):
+    """Model that holds intermediate connection between activities and incidents
+    """
+    activity = models.ForeignKey(Activity, on_delete=models.CASCADE, related_name='activities_incidents')
+    incident = models.ForeignKey(Incident, on_delete=models.CASCADE, related_name='activities_incidents')
+
+    class Meta:
+        db_table = 'activities_incidents'
+        # Constraint to avoid duplication of data
+        unique_together = ['activity', 'incident']
 
 
 class AbandonedVehicle(AutoCreatedUpdatedModel):
