@@ -4,7 +4,8 @@
     "pk": 1,
     "fields": {
       "username": "admin",
-      "email": "admin@example.com"
+      "email": "admin@example.com",
+      "is_superuser" : "True"
     }
   },
   {
@@ -12,7 +13,8 @@
     "pk": 2,
     "fields": {
       "username": "user",
-      "email": "user@example.com"
+      "email": "user@example.com",
+      "is_superuser" : "False"
     }
   },
   {
@@ -20,7 +22,8 @@
     "pk": 3,
     "fields": {
       "username": "admin2",
-      "email": "admin2@example.com"
+      "email": "admin2@example.com",
+      "is_superuser" : "True"
     }
   }
 ]
