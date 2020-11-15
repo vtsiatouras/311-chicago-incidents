@@ -5,6 +5,7 @@ import typing
 from django.utils.decorators import method_decorator
 from drf_yasg import utils
 from rest_framework import viewsets
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.serializers import Serializer
 
 from .. import serializers
@@ -42,3 +43,8 @@ class AbandonedVehicleViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixin
             return serializers.AbandonedVehicleSerializer
         elif self.action in ('create', 'partial_update', 'update'):
             return serializers.AbandonedVehicleCreateSerializer
+
+    def get_permissions(self) -> typing.List[BasePermission]:
+        """Instantiates and returns the list of permissions that this view requires.
+        """
+        return [IsAuthenticated()]

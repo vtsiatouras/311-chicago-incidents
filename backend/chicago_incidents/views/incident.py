@@ -2,13 +2,12 @@
 """
 import typing
 
-from django.db.models import QuerySet
 from django.utils.decorators import method_decorator
 from drf_yasg import utils
 from rest_framework import viewsets, status
 from rest_framework.decorators import action
+from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.serializers import Serializer
 
 from .. import serializers
 from ..models import Incident
@@ -55,3 +54,8 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.GenericViewSe
     #         return serializers.IncidentSerializer
     #     elif self.action in ('create', 'partial_update', 'update'):
     #         return serializers.AbandonedVehicleIncidentCreateSerializer
+
+    def get_permissions(self) -> typing.List[BasePermission]:
+        """Instantiates and returns the list of permissions that this view requires.
+        """
+        return [IsAuthenticated()]
