@@ -75,3 +75,28 @@ class UserProfileTests(BaseAPITestCase):
 
         response = self.client.patch(reverse('user-detail', kwargs={'pk': 1}), data={"email": "admin@example.com"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Test that admin users can't edit other users info
+        response = self.client.patch(reverse('user-detail', kwargs={'pk': 2}), data={"email": "admin@example.com"})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_user_update_or_partial_update_simple_user(self):
+        self.authenticate('user')
+
+        # On update username and email should be different
+        response = self.client.put(reverse('user-detail', kwargs={'pk': 2}),
+                                   data={"username": "test1", "password": "ASdsa123", "email": "test1@example.com"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.patch(reverse('user-detail', kwargs={'pk': 2}), data={"password": "ASdsa123dsada"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.patch(reverse('user-detail', kwargs={'pk': 2}), data={"username": "test"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        response = self.client.patch(reverse('user-detail', kwargs={'pk': 2}), data={"email": "test@example.com"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Test that simple users can't edit other users info
+        response = self.client.patch(reverse('user-detail', kwargs={'pk': 1}), data={"email": "test1@example.com"})
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
