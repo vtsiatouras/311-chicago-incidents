@@ -28,7 +28,7 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.GenericViewSe
 
     # @utils.swagger_auto_schema(query_serializer=serializers.AbandonedVehicleIncidentCreateSerializer)
     @action(
-        methods=['post'], detail=False, url_path='create_abandoned_vehicle_incidents',
+        methods=['post'], detail=False, url_path='createAbandonedVehicleIncidents',
         serializer_class=serializers.AbandonedVehicleIncidentCreateSerializer,
     )
     def abandoned_vehicle_incident(self, request):
