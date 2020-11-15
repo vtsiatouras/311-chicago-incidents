@@ -5,7 +5,7 @@
     "fields": {
       "username": "admin",
       "email": "admin@example.com",
-      "is_superuser" : "True"
+      "is_superuser": "True"
     }
   },
   {
@@ -14,7 +14,7 @@
     "fields": {
       "username": "user",
       "email": "user@example.com",
-      "is_superuser" : "False"
+      "is_superuser": "False"
     }
   },
   {
@@ -23,7 +23,7 @@
     "fields": {
       "username": "admin2",
       "email": "admin2@example.com",
-      "is_superuser" : "True"
+      "is_superuser": "True"
     }
   }
 ]

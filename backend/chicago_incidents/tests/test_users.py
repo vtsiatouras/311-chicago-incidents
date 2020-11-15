@@ -6,7 +6,6 @@ from .base import BaseAPITestCase
 
 
 class UserProfileTests(BaseAPITestCase):
-
     fixtures = ['users.json']
 
     def test_unauthorized(self):

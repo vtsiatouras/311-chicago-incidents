@@ -42,6 +42,6 @@ class UserCreateProfileSerializer(ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         user.is_active = False
-        user.is_superuser = False   # do not create superusers through the API
+        user.is_superuser = False  # do not create superusers through the API
         user.save()
         return user

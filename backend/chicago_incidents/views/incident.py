@@ -23,7 +23,6 @@ from ..models import Incident
 #     operation_summary="Partial update for an incident"
 # ))
 class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.GenericViewSet):
-
     serializer_class = serializers.IncidentSerializer
     queryset = Incident.objects.all()
 

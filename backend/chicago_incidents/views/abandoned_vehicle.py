@@ -30,7 +30,6 @@ from ..models import AbandonedVehicle
 class AbandonedVehicleViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.CreateModelMixin,
                               viewsets.mixins.UpdateModelMixin, viewsets.mixins.ListModelMixin,
                               viewsets.GenericViewSet):
-
     serializer_class = serializers.AbandonedVehicleSerializer
     queryset = AbandonedVehicle.objects.all()
 

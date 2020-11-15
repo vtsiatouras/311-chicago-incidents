@@ -5,7 +5,6 @@ import django.db.models.deletion
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -93,10 +92,21 @@ class Migration(migrations.Migration):
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
                 ('creation_date', models.DateTimeField()),
-                ('status', models.CharField(choices=[('OPEN', 'Open'), ('OPEN_DUP', 'Open - Dup'), ('COMPLETED', 'Completed'), ('COMPLETED_DUP', 'Completed - Dup')], max_length=15)),
+                ('status', models.CharField(
+                    choices=[('OPEN', 'Open'), ('OPEN_DUP', 'Open - Dup'), ('COMPLETED', 'Completed'),
+                             ('COMPLETED_DUP', 'Completed - Dup')], max_length=15)),
                 ('completion_date', models.DateTimeField(blank=True, null=True)),
                 ('service_request_number', models.CharField(max_length=20)),
-                ('type_of_service_request', models.CharField(choices=[('ABANDONED_VEHICLE', 'Abandoned Vehicle Complaint'), ('ALLEY_LIGHTS_OUT', 'Alley Lights Out'), ('GARBAGE_CART', 'Garbage Cart Black Maintenance/Replacement'), ('GRAFFITI', 'Graffiti Removal'), ('POT_HOLE', 'Pothole in Street'), ('RODENT_BAITING', 'Rodent Baiting/Rat Complaint'), ('SANITATION_CODE', 'Sanitation Code Violation'), ('STREET_LIGHTS_ALL_OUT', 'Street Lights - All/Out'), ('STREET_LIGHT_ONE_OUT', 'Street Light Out'), ('TREE_DEBRIS', 'Tree Debris'), ('TREE_TRIM', 'Tree Trim')], max_length=30)),
+                ('type_of_service_request', models.CharField(
+                    choices=[('ABANDONED_VEHICLE', 'Abandoned Vehicle Complaint'),
+                             ('ALLEY_LIGHTS_OUT', 'Alley Lights Out'),
+                             ('GARBAGE_CART', 'Garbage Cart Black Maintenance/Replacement'),
+                             ('GRAFFITI', 'Graffiti Removal'), ('POT_HOLE', 'Pothole in Street'),
+                             ('RODENT_BAITING', 'Rodent Baiting/Rat Complaint'),
+                             ('SANITATION_CODE', 'Sanitation Code Violation'),
+                             ('STREET_LIGHTS_ALL_OUT', 'Street Lights - All/Out'),
+                             ('STREET_LIGHT_ONE_OUT', 'Street Light Out'), ('TREE_DEBRIS', 'Tree Debris'),
+                             ('TREE_TRIM', 'Tree Trim')], max_length=30)),
                 ('street_address', models.CharField(blank=True, max_length=100, null=True)),
                 ('zip_code', models.IntegerField(blank=True, null=True)),
                 ('zip_codes', models.IntegerField(blank=True, null=True)),
@@ -185,8 +195,11 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('created_at', models.DateTimeField(auto_now_add=True)),
                 ('updated_at', models.DateTimeField(auto_now=True)),
-                ('incident', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tree_incidents', to='chicago_incidents.incident')),
-                ('tree', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tree_incidents', to='chicago_incidents.tree')),
+                ('incident',
+                 models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tree_incidents',
+                                   to='chicago_incidents.incident')),
+                ('tree', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tree_incidents',
+                                           to='chicago_incidents.tree')),
             ],
             options={
                 'db_table': 'tree_incidents',
@@ -199,12 +212,16 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sanitationcodeviolationincident',
             name='incident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sanitation_code_violations_incidents', to='chicago_incidents.incident'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='sanitation_code_violations_incidents',
+                                    to='chicago_incidents.incident'),
         ),
         migrations.AddField(
             model_name='sanitationcodeviolationincident',
             name='sanitation_code_violation',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sanitation_code_violations_incidents', to='chicago_incidents.sanitationcodeviolation'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='sanitation_code_violations_incidents',
+                                    to='chicago_incidents.sanitationcodeviolation'),
         ),
         migrations.AddIndex(
             model_name='sanitationcodeviolation',
@@ -213,26 +230,32 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='rodentbaitingpremises',
             name='incident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rodent_baiting_premises', to='chicago_incidents.incident'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='rodent_baiting_premises',
+                                    to='chicago_incidents.incident'),
         ),
         migrations.AddField(
             model_name='numberofcartsandpotholes',
             name='incident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='number_of_carts_and_potholes', to='chicago_incidents.incident'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='number_of_carts_and_potholes', to='chicago_incidents.incident'),
         ),
         migrations.AddIndex(
             model_name='incident',
-            index=models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number', 'type_of_service_request', 'street_address'], name='incidents_creatio_549343_idx'),
+            index=models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
+                                       'type_of_service_request', 'street_address'],
+                               name='incidents_creatio_549343_idx'),
         ),
         migrations.AddField(
             model_name='graffitiincident',
             name='graffiti',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='graffiti_incidents', to='chicago_incidents.graffiti'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='graffiti_incidents',
+                                    to='chicago_incidents.graffiti'),
         ),
         migrations.AddField(
             model_name='graffitiincident',
             name='incident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='graffiti_incidents', to='chicago_incidents.incident'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='graffiti_incidents',
+                                    to='chicago_incidents.incident'),
         ),
         migrations.AddIndex(
             model_name='graffiti',
@@ -245,12 +268,14 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='activityincident',
             name='activity',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities_incidents', to='chicago_incidents.activity'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities_incidents',
+                                    to='chicago_incidents.activity'),
         ),
         migrations.AddField(
             model_name='activityincident',
             name='incident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities_incidents', to='chicago_incidents.incident'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='activities_incidents',
+                                    to='chicago_incidents.incident'),
         ),
         migrations.AddIndex(
             model_name='activity',
@@ -263,16 +288,20 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='abandonedvehicleincident',
             name='abandoned_vehicle',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='abandoned_vehicles_incidents', to='chicago_incidents.abandonedvehicle'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='abandoned_vehicles_incidents',
+                                    to='chicago_incidents.abandonedvehicle'),
         ),
         migrations.AddField(
             model_name='abandonedvehicleincident',
             name='incident',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='abandoned_vehicles_incidents', to='chicago_incidents.incident'),
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE,
+                                    related_name='abandoned_vehicles_incidents', to='chicago_incidents.incident'),
         ),
         migrations.AddIndex(
             model_name='abandonedvehicle',
-            index=models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color'], name='abandoned_v_license_0f0966_idx'),
+            index=models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color'],
+                               name='abandoned_v_license_0f0966_idx'),
         ),
         migrations.AlterUniqueTogether(
             name='abandonedvehicle',
@@ -288,7 +317,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name='rodentbaitingpremises',
-            unique_together={('number_of_premises_baited', 'number_of_premises_w_garbage', 'number_of_premises_w_rats', 'incident')},
+            unique_together={
+                ('number_of_premises_baited', 'number_of_premises_w_garbage', 'number_of_premises_w_rats', 'incident')},
         ),
         migrations.AlterUniqueTogether(
             name='numberofcartsandpotholes',

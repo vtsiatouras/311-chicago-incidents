@@ -26,6 +26,7 @@ class AbandonedVehicleCreateSerializer(ModelSerializer):
 class AbandonedVehicleCreateSerializerForIncident(AbandonedVehicleCreateSerializer):
     """Abandoned vehicle create serializer that is used when creating incidents
     """
+
     def get_unique_together_validators(self):
         """Overriding method to disable unique together checks"""
         return []
