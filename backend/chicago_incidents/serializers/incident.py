@@ -4,8 +4,8 @@ from rest_framework.serializers import ModelSerializer, ValidationError
 
 from .. import models
 from ..serializers import BaseSerializer, AbandonedVehicleCreateSerializerForIncident, \
-    ActivityCreateSerializerForIncident, CartsAndPotholesSerializerForIncident, \
-    RodentBaitingPremisesSerializerForIncident, GraffitiCreateSerializerForIncident
+    ActivityCreateSerializerForIncident, RodentBaitingPremisesSerializerForIncident, \
+    GraffitiCreateSerializerForIncident, CartsAndPotholesCreateSerializer, SanitationCodeViolationCreateSerializerForIncident
 
 
 class IncidentSerializer(ModelSerializer):
@@ -63,7 +63,7 @@ class CartsAndPotholesIncidentCreateSerializer(BaseSerializer):
     """
     incident = IncidentCreateSerializer()
     activity = ActivityCreateSerializerForIncident(required=False)
-    carts_and_potholes = CartsAndPotholesSerializerForIncident(required=False)
+    carts_and_potholes = CartsAndPotholesCreateSerializer(required=False)
 
     def validate_incident(self, incident):
         if not incident.get('type_of_service_request') in (models.Incident.GARBAGE_CART, models.Incident.POT_HOLE):
@@ -128,4 +128,26 @@ class RodentBaitingIncidentCreateSerializer(BaseSerializer):
         if activity_data:
             activity, _ = models.Activity.objects.get_or_create(**activity_data)
             _ = models.ActivityIncident.objects.get_or_create(activity=activity, incident=incident)
+        return incident
+
+
+class SanitationCodeViolationIncidentCreateSerializer(BaseSerializer):
+    """Serializer for creating incidents about sanitation code violation
+    """
+    incident = IncidentCreateSerializer()
+    sanitation_code_violation = SanitationCodeViolationCreateSerializerForIncident(required=False)
+
+    def validate_incident(self, incident):
+        if not incident.get('type_of_service_request') == models.Incident.SANITATION_CODE:
+            raise ValidationError("'type_of_service_request' should be set as 'SANITATION_CODE'")
+        return incident
+
+    def create(self, validated_data):
+        incident_data = validated_data.get('incident')
+        sanitation_data = validated_data.get('sanitation_code_violation')
+        incident, _ = models.Incident.objects.get_or_create(**incident_data)
+        if sanitation_data:
+            sanitation_code, _ = models.SanitationCodeViolation.objects.get_or_create(**sanitation_data)
+            _ = models.SanitationCodeViolationIncident.objects.get_or_create(sanitation_code_violation=sanitation_code,
+                                                                             incident=incident)
         return incident

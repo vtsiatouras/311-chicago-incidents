@@ -92,6 +92,23 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
 
         return Response(status=status.HTTP_201_CREATED)
 
+    @action(
+        methods=['post'], detail=False, url_path='createSanitationCodeViolation',
+        serializer_class=serializers.SanitationCodeViolationIncidentCreateSerializer,
+    )
+    def sanitation_code_violation(self, request):
+        """Create incident about sanitation code violation
+
+        :param request: The HTTP request.
+        :return: The response.
+        """
+        serializer = serializers.SanitationCodeViolationIncidentCreateSerializer(data=self.request.data,
+                                                                                 context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
     def get_serializer_class(self) -> typing.Type[Serializer]:
         """Get the serializer for the action.
 
