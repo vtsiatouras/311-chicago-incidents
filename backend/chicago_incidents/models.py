@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Q
+from rest_framework.exceptions import ValidationError
 
 
 class AutoCreatedUpdatedModel(models.Model):
@@ -101,6 +103,11 @@ class Activity(AutoCreatedUpdatedModel):
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['current_activity', 'most_recent_action']), ]
 
+    def clean(self):
+        super().clean()
+        if self.current_activity is None and self.most_recent_action is None:
+            raise ValidationError("Activity fields are all None")
+
 
 class ActivityIncident(AutoCreatedUpdatedModel):
     """Model that holds intermediate connection between activities and incidents
@@ -127,6 +134,11 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
         unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color']), ]
+
+    def clean(self):
+        super().clean()
+        if self.license_plate is None and self.vehicle_color is None and self.vehicle_make_model is None:
+            raise ValidationError("Abandoned vehicle fields are all None")
 
     def __str__(self):
         """Return the string representation of the incident.
@@ -178,6 +190,11 @@ class Graffiti(AutoCreatedUpdatedModel):
         unique_together = ['surface', 'location']
         indexes = [models.Index(fields=['surface', 'location']), ]
 
+    def clean(self):
+        super().clean()
+        if self.surface is None and self.location is None:
+            raise ValidationError("Graffiti fields are all None")
+
 
 class GraffitiIncident(AutoCreatedUpdatedModel):
     """Model that holds intermediate connection between graffiti and incidents
@@ -227,6 +244,12 @@ class RodentBaitingPremises(AutoCreatedUpdatedModel):
         # Constraint to avoid duplication of data
         unique_together = ['number_of_premises_baited', 'number_of_premises_w_garbage', 'number_of_premises_w_rats',
                            'incident']
+
+    def clean(self):
+        super().clean()
+        if self.number_of_premises_baited is None and self.number_of_premises_w_garbage is None \
+                and self.number_of_premises_w_rats is None:
+            raise ValidationError("Rodent baiting premises fields are all None")
 
 
 class SanitationCodeViolation(AutoCreatedUpdatedModel):

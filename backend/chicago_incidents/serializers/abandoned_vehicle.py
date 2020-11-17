@@ -1,5 +1,6 @@
 """Abandoned vehicle related serializers
 """
+from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 
 from ..models import AbandonedVehicle
@@ -21,6 +22,11 @@ class AbandonedVehicleCreateSerializer(ModelSerializer):
     class Meta:
         model = AbandonedVehicle
         fields = ['license_plate', 'vehicle_make_model', 'vehicle_color']
+
+    def validate(self, attrs):
+        if attrs['license_plate'] is None and attrs['vehicle_color'] is None and attrs['vehicle_make_model'] is None:
+            raise ValidationError("Abandoned vehicle fields are all None")
+        return attrs
 
 
 class AbandonedVehicleCreateSerializerForIncident(AbandonedVehicleCreateSerializer):
