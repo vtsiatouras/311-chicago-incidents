@@ -8,6 +8,7 @@ from rest_framework import viewsets, status
 from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 from .. import serializers
 from ..models import Incident
@@ -16,13 +17,10 @@ from ..models import Incident
 @method_decorator(name='retrieve', decorator=utils.swagger_auto_schema(
     operation_summary="Get an incident"
 ))
-# @method_decorator(name='update', decorator=utils.swagger_auto_schema(
-#     operation_summary="Update an incident"
-# ))
-# @method_decorator(name='partial_update', decorator=utils.swagger_auto_schema(
-#     operation_summary="Partial update for an incident"
-# ))
-class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.GenericViewSet):
+@method_decorator(name='create', decorator=utils.swagger_auto_schema(
+    operation_summary="Create an incident"
+))
+class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.CreateModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.IncidentSerializer
     queryset = Incident.objects.all()
 
@@ -32,7 +30,7 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.GenericViewSe
         serializer_class=serializers.AbandonedVehicleIncidentCreateSerializer,
     )
     def abandoned_vehicle_incident(self, request):
-        """Create, update, patch incidents about abandoned vehicles
+        """Create about abandoned vehicles
 
         :param request: The HTTP request.
         :return: The response.
@@ -44,15 +42,34 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.GenericViewSe
 
         return Response(status=status.HTTP_201_CREATED)
 
-    # def get_serializer_class(self) -> typing.Type[Serializer]:
-    #     """Get the serializer for the action.
-    #
-    #     :return: The serializer.
-    #     """
-    #     if self.action in ('list', 'retrieve'):
-    #         return serializers.IncidentSerializer
-    #     elif self.action in ('create', 'partial_update', 'update'):
-    #         return serializers.AbandonedVehicleIncidentCreateSerializer
+    @action(
+        methods=['post'], detail=False, url_path='createGarbageCartsAndPotholesIncidents',
+        serializer_class=serializers.CartsAndPotholesIncidentCreateSerializer,
+    )
+    def garbage_carts_and_potholes_incident(self, request):
+        """Create about garbage carts and potholes
+
+        :param request: The HTTP request.
+        :return: The response.
+        """
+        serializer = serializers.CartsAndPotholesIncidentCreateSerializer(data=self.request.data,
+                                                                          context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    def get_serializer_class(self) -> typing.Type[Serializer]:
+        """Get the serializer for the action.
+
+        :return: The serializer.
+        """
+        if self.action in ('retrieve',):
+            return serializers.IncidentSerializer
+        elif self.action in ('create',):
+            return serializers.IncidentCreateSerializer
+        else:
+            return super().get_serializer_class()
 
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
