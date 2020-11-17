@@ -72,6 +72,9 @@ class Incident(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'incidents'
+        # Constraint to avoid duplication of data
+        unique_together = ['creation_date', 'status', 'completion_date', 'service_request_number',
+                           'type_of_service_request', 'street_address']
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
                                         'type_of_service_request', 'street_address']),
