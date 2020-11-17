@@ -6,6 +6,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 class BaseAPITestCase(APITestCase):
     """Base class for API test cases
     """
+
     def authenticate(self, username: str):
         """Authenticate the user with the specified email.
 

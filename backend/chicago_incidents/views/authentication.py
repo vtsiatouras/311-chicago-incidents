@@ -7,7 +7,7 @@ from django.utils.decorators import method_decorator
 from drf_yasg import utils
 from rest_framework import viewsets
 from django.contrib.auth.models import User
-from rest_framework.permissions import BasePermission, IsAuthenticated
+from rest_framework.permissions import BasePermission, IsAuthenticated, AllowAny
 from rest_framework.serializers import Serializer
 
 from .. import serializers
@@ -55,7 +55,7 @@ class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.Retri
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
         """
-        if self.action in ('create', 'update', 'partial_update', 'retrieve'):
+        if self.action in ('update', 'partial_update', 'retrieve'):
             return [IsAuthenticated()]
-
-        return super().get_permissions()
+        else:
+            return [AllowAny()]
