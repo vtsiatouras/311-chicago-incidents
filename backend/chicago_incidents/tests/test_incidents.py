@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from .base import BaseAPITestCase
-from ..models import AbandonedVehicle, Activity
+from ..models import AbandonedVehicle, Activity, Graffiti
 
 
 class IncidentTests(BaseAPITestCase):
@@ -127,6 +127,38 @@ class IncidentTests(BaseAPITestCase):
                     'number_of_premises_w_garbage': 30,
                     'number_of_premises_w_rats': 20
                 }
+            },
+            {
+                'incident': {
+                    'creation_date': '2020-11-15T23:11:07.285Z',
+                    'completion_date': '2020-11-15T23:11:07.285Z',
+                    'status': 'OPEN',
+                    'service_request_number': '987654-qwe',
+                    'type_of_service_request': 'GRAFFITI',
+                    'street_address': 'Test Address 123',
+                    'zip_code': 0,
+                    'zip_codes': 0,
+                    'x_coordinate': 12.134,
+                    'y_coordinate': 12.134,
+                    'latitude': 12.134,
+                    'longitude': 12.134,
+                    'ward': 0,
+                    'wards': 0,
+                    'historical_wards_03_15': 0,
+                    'police_district': 0,
+                    'community_area': 0,
+                    'community_areas': 0,
+                    'ssa': 0,
+                    'census_tracts': 0
+                },
+                'activity': {
+                    'current_activity': 'Processing request',
+                    'most_recent_action': 'Get info'
+                },
+                'graffiti': {
+                    'surface': 'test surface',
+                    'location': 'test location',
+                }
             }
         ]
 
@@ -176,7 +208,6 @@ class IncidentTests(BaseAPITestCase):
 
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['status'] = 'OPEN'
 
     def test_incident_create_malformed_service_request(self):
         """Test that user can't input malformed values
@@ -187,7 +218,6 @@ class IncidentTests(BaseAPITestCase):
         data['type_of_service_request'] = 'unknown type'
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['type_of_service_request'] = 'ABANDONED_VEHICLE'
 
     def test_incident_create_malformed_dates(self):
         """Test that user can't input malformed values
@@ -199,7 +229,6 @@ class IncidentTests(BaseAPITestCase):
         data['creation_date'] = 'this is not a date'
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['type_of_service_request'] = '2020-11-15T23:11:07.285Z'
 
     def test_incident_create_malformed_service_request_number(self):
         """Test that user can't input malformed values
@@ -210,7 +239,6 @@ class IncidentTests(BaseAPITestCase):
         data['service_request_number'] = None
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['service_request_number'] = '987654-qwe'
 
     def test_abandoned_vehicle_incident_create(self):
         """Test that user can create abandoned vehicle incidents
@@ -296,7 +324,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['status'] = 'asdf'
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['status'] = 'OPEN'
 
     def test_abandoned_vehicle_incident_create_malformed_type_of_service(self):
         """Test that user can't input malformed values
@@ -308,7 +335,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['type_of_service_request'] = 'unknown type'
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = 'ABANDONED_VEHICLE'
 
     def test_abandoned_vehicle_incident_create_wrong_type_of_service(self):
         """Test that user can't input malformed values
@@ -320,7 +346,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['type_of_service_request'] = 'TREE_TRIMS'
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = 'ABANDONED_VEHICLE'
 
     def test_abandoned_vehicle_incident_create_malformed_dates(self):
         """Test that user can't input malformed values
@@ -332,7 +357,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['creation_date'] = 'this is not a date'
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = '2020-11-15T23:11:07.285Z'
 
     def test_abandoned_vehicle_incident_malformed_request_number(self):
         """Test that user can't input malformed values
@@ -344,7 +368,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['service_request_number'] = None
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['service_request_number'] = '987654-qwe'
 
     def test_abandoned_vehicle_incident_create_malformed_activity(self):
         """Test that user can't input malformed values
@@ -453,7 +476,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['status'] = 'asdf'
         response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['status'] = 'OPEN'
 
     def test_potholes_and_carts_incident_create_malformed_type_of_service(self):
         """Test that user can't input malformed values
@@ -465,7 +487,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['type_of_service_request'] = 'unknown type'
         response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = 'POT_HOLE'
 
     def test_potholes_and_carts_incident_create_wrong_type_of_service(self):
         """Test that user can't input malformed values
@@ -477,7 +498,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['type_of_service_request'] = 'TREE_TRIMS'
         response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = 'POT_HOLE'
 
     def test_potholes_and_carts_incident_create_malformed_dates(self):
         """Test that user can't input malformed values
@@ -489,7 +509,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['creation_date'] = 'this is not a date'
         response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = '2020-11-15T23:11:07.285Z'
 
     def test_potholes_and_carts_incident_create_malformed_request_number(self):
         """Test that user can't input malformed values
@@ -501,7 +520,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['service_request_number'] = None
         response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['service_request_number'] = '987654-qwe'
 
     def test_potholes_and_carts_incident_create_malformed_activity(self):
         """Test that user can't input malformed values
@@ -601,7 +619,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['status'] = 'asdf'
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['status'] = 'OPEN'
 
     def test_rodent_baiting_incident_create_malformed_type_of_service(self):
         """Test that user can't input malformed values
@@ -612,7 +629,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['type_of_service_request'] = 'unknown type'
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = 'POT_HOLE'
 
     def test_rodent_baiting_incident_create_wrong_type_of_service(self):
         """Test that user can't input malformed values
@@ -623,7 +639,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['type_of_service_request'] = 'TREE_TRIMS'
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = 'POT_HOLE'
 
     def test_rodent_baiting_incident_create_malformed_dates(self):
         """Test that user can't input malformed values
@@ -634,7 +649,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['creation_date'] = 'this is not a date'
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['type_of_service_request'] = '2020-11-15T23:11:07.285Z'
 
     def test_rodent_baiting_incident_create_malformed_request_number(self):
         """Test that user can't input malformed values
@@ -645,7 +659,6 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['service_request_number'] = None
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-        data['incident']['service_request_number'] = '987654-qwe'
 
     def test_rodent_baiting_incident_create_malformed_activity(self):
         """Test that user can't input malformed values
@@ -668,4 +681,127 @@ class IncidentTests(BaseAPITestCase):
         data['rodent_baiting_premises']['number_of_premises_w_garbage'] = None
         data['rodent_baiting_premises']['number_of_premises_w_rats'] = None
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create(self):
+        """Test that user can create graffiti incidents
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_graffiti_incident_create_twice(self):
+        """Test that user can't create the same incident twice
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_potholes_and_carts_incident_create_w_o_graffiti(self):
+        """Test that user can create incident without graffiti
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+        data.pop('graffiti')
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_graffiti_incident_create_does_not_creating_duplicate_graffiti(self):
+        """Test that creating incidents with same activities do not create duplicate graffiti to the db
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data['incident']['service_request_number'] = 'srn2'
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Make sure that we didn't create duplicate activity
+        activity = Graffiti.objects.filter(surface='test surface')
+        self.assertEqual(len(activity), 1)
+
+    def test_graffiti_incident_create_malformed_status(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+
+        data['incident']['status'] = 'asdf'
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create_malformed_type_of_service(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+
+        data['incident']['type_of_service_request'] = 'unknown type'
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create_wrong_type_of_service(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[4]
+
+        data['incident']['type_of_service_request'] = 'TREE_TRIMS'
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create_malformed_dates(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[2]
+
+        data['incident']['creation_date'] = 'this is not a date'
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create_malformed_request_number(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[2]
+
+        data['incident']['service_request_number'] = None
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create_malformed_activity(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[2]
+        data['activity']['current_activity'] = None
+        data['activity']['most_recent_action'] = None
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_graffiti_incident_create_malformed_carts_and_potholes(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[2]
+
+        data['carts_and_potholes']['number_of_elements'] = None
+        response = self.client.post(reverse('incident-graffiti'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
