@@ -2,7 +2,7 @@ from django.urls import reverse
 from rest_framework import status
 
 from .base import BaseAPITestCase
-from ..models import AbandonedVehicle, Activity, Graffiti, SanitationCodeViolation
+from ..models import AbandonedVehicle, Activity, Graffiti, SanitationCodeViolation, Tree
 
 
 class IncidentTests(BaseAPITestCase):
@@ -182,6 +182,37 @@ class IncidentTests(BaseAPITestCase):
                 'sanitation_code_violation': {
                     'nature_of_code_violation': 'test violation',
                 }
+            },
+            {
+                'incident': {
+                    'creation_date': '2020-11-15T23:11:07.285Z',
+                    'completion_date': '2020-11-15T23:11:07.285Z',
+                    'status': 'OPEN',
+                    'service_request_number': '987654-qwe',
+                    'type_of_service_request': 'TREE_DEBRIS',
+                    'street_address': 'Test Address 123',
+                    'zip_code': 0,
+                    'zip_codes': 0,
+                    'x_coordinate': 12.134,
+                    'y_coordinate': 12.134,
+                    'latitude': 12.134,
+                    'longitude': 12.134,
+                    'ward': 0,
+                    'wards': 0,
+                    'historical_wards_03_15': 0,
+                    'police_district': 0,
+                    'community_area': 0,
+                    'community_areas': 0,
+                    'ssa': 0,
+                    'census_tracts': 0
+                },
+                'activity': {
+                    'current_activity': 'Processing request',
+                    'most_recent_action': 'Get info'
+                },
+                'tree': {
+                    'location': 'test location',
+                }
             }
         ]
 
@@ -332,8 +363,8 @@ class IncidentTests(BaseAPITestCase):
         response = self.client.post(reverse('incident-abandoned-vehicle'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Make sure that we didn't create duplicate activity
-        activity = Activity.objects.filter(current_activity='Processing request')
-        abandoned_car = AbandonedVehicle.objects.filter(license_plate='123RT45')
+        activity = Activity.objects.filter(current_activity=data['activity']['current_activity'])
+        abandoned_car = AbandonedVehicle.objects.filter(license_plate=data['abandoned_vehicle']['license_plate'])
         self.assertEqual(len(activity), 1)
         self.assertEqual(len(abandoned_car), 1)
 
@@ -486,7 +517,7 @@ class IncidentTests(BaseAPITestCase):
         response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Make sure that we didn't create duplicate activity
-        activity = Activity.objects.filter(current_activity='Processing request')
+        activity = Activity.objects.filter(current_activity=data['activity']['current_activity'])
         self.assertEqual(len(activity), 1)
 
     def test_potholes_and_carts_incident_create_malformed_status(self):
@@ -630,7 +661,7 @@ class IncidentTests(BaseAPITestCase):
         data['incident']['service_request_number'] = 'srn2'
         response = self.client.post(reverse('incident-rodent-baiting'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        activity = Activity.objects.filter(current_activity='Processing request')
+        activity = Activity.objects.filter(current_activity=data['activity']['current_activity'])
         self.assertEqual(len(activity), 1)
 
     def test_rodent_baiting_incident_create_malformed_status(self):
@@ -861,7 +892,8 @@ class IncidentTests(BaseAPITestCase):
         response = self.client.post(reverse('incident-sanitation-code-violation'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         # Make sure that we didn't create duplicate activity
-        code_violation = SanitationCodeViolation.objects.filter(nature_of_code_violation='test violation')
+        code_violation = SanitationCodeViolation.objects.\
+            filter(nature_of_code_violation=data['sanitation_code_violation']['nature_of_code_violation'])
         self.assertEqual(len(code_violation), 1)
 
     def test_sanitation_code_violation_incident_create_malformed_status(self):
@@ -928,4 +960,155 @@ class IncidentTests(BaseAPITestCase):
 
         data['sanitation_code_violation']['nature_of_code_violation'] = None
         response = self.client.post(reverse('incident-sanitation-code-violation'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create(self):
+        """Test that user can create tree incidents
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        # Check for 'TREE_TRIM' as type of request
+        data['incident']['type_of_service_request'] = 'TREE_TRIM'
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_tree_incident_create_twice(self):
+        """Test that user can't create the same incident twice
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_w_o_activity(self):
+        """Test that user can create incident without activity
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+        data.pop('activity')
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_tree_incident_create_w_o_carts_and_potholes(self):
+        """Test that user can create incident without tree
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+        data.pop('tree')
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_tree_incident_create_w_o_tree_and_activity(self):
+        """Test that user can create incident without tree & activity
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+        data.pop('activity')
+        data.pop('tree')
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+    def test_tree_incident_create_does_not_creating_duplicate_activities_and_trees(self):
+        """Test that creating incidents with same activities do not create duplicate activities and trees to the db
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        data['incident']['service_request_number'] = 'srn2'
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        # Make sure that we didn't create duplicate activity
+        activity = Activity.objects.filter(current_activity=data['activity']['current_activity'])
+        self.assertEqual(len(activity), 1)
+        tree = Tree.objects.filter(location=data['tree']['location'])
+        self.assertEqual(len(tree), 1)
+
+    def test_tree_incident_create_malformed_status(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        data['incident']['status'] = 'asdf'
+        response = self.client.post(reverse('incident-garbage-carts-and-potholes'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_malformed_type_of_service(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        data['incident']['type_of_service_request'] = 'unknown type'
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_wrong_type_of_service(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        data['incident']['type_of_service_request'] = 'ABANDONED_VEHICLE'
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_malformed_dates(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        data['incident']['creation_date'] = 'this is not a date'
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_malformed_request_number(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        data['incident']['service_request_number'] = None
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_malformed_activity(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+        data['activity']['current_activity'] = None
+        data['activity']['most_recent_action'] = None
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_tree_incident_create_malformed_tree(self):
+        """Test that user can't input malformed values
+        """
+        self.authenticate('user')
+
+        data = self.__data__[6]
+
+        data['tree']['location'] = None
+        response = self.client.post(reverse('incident-tree'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
