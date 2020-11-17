@@ -5,7 +5,7 @@ from rest_framework.serializers import ModelSerializer, ValidationError
 from .. import models
 from ..serializers import BaseSerializer, AbandonedVehicleCreateSerializerForIncident, \
     ActivityCreateSerializerForIncident, CartsAndPotholesSerializerForIncident, \
-    RodentBaitingPremisesSerializerForIncident
+    RodentBaitingPremisesSerializerForIncident, GraffitiCreateSerializerForIncident
 
 
 class IncidentSerializer(ModelSerializer):
@@ -81,6 +81,27 @@ class CartsAndPotholesIncidentCreateSerializer(BaseSerializer):
         if activity_data:
             activity, _ = models.Activity.objects.get_or_create(**activity_data)
             _ = models.ActivityIncident.objects.get_or_create(activity=activity, incident=incident)
+        return incident
+
+
+class GraffitiIncidentCreateSerializer(BaseSerializer):
+    """Serializer for creating incidents about graffiti
+    """
+    incident = IncidentCreateSerializer()
+    graffiti = GraffitiCreateSerializerForIncident(required=False)
+
+    def validate_incident(self, incident):
+        if not incident.get('type_of_service_request') == models.Incident.GRAFFITI:
+            raise ValidationError("'type_of_service_request' should be set as 'GRAFFITI'")
+        return incident
+
+    def create(self, validated_data):
+        incident_data = validated_data.get('incident')
+        graffiti_data = validated_data.get('graffiti')
+        incident, _ = models.Incident.objects.get_or_create(**incident_data)
+        if graffiti_data:
+            graffiti, _ = models.Graffiti.objects.get_or_create(**graffiti_data)
+            _ = models.GraffitiIncident.objects.get_or_create(graffiti=graffiti, incident=incident)
         return incident
 
 

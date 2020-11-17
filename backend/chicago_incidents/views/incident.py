@@ -60,6 +60,22 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
         return Response(status=status.HTTP_201_CREATED)
 
     @action(
+        methods=['post'], detail=False, url_path='createGraffitiIncidents',
+        serializer_class=serializers.GraffitiIncidentCreateSerializer,
+    )
+    def graffiti(self, request):
+        """Create incident about graffiti
+
+        :param request: The HTTP request.
+        :return: The response.
+        """
+        serializer = serializers.GraffitiIncidentCreateSerializer(data=self.request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    @action(
         methods=['post'], detail=False, url_path='createRodentBaitingIncidents',
         serializer_class=serializers.RodentBaitingIncidentCreateSerializer,
     )
