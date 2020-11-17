@@ -29,8 +29,8 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
         methods=['post'], detail=False, url_path='createAbandonedVehicleIncidents',
         serializer_class=serializers.AbandonedVehicleIncidentCreateSerializer,
     )
-    def abandoned_vehicle_incident(self, request):
-        """Create about abandoned vehicles
+    def abandoned_vehicle(self, request):
+        """Create incident about abandoned vehicles
 
         :param request: The HTTP request.
         :return: The response.
@@ -46,14 +46,31 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
         methods=['post'], detail=False, url_path='createGarbageCartsAndPotholesIncidents',
         serializer_class=serializers.CartsAndPotholesIncidentCreateSerializer,
     )
-    def garbage_carts_and_potholes_incident(self, request):
-        """Create about garbage carts and potholes
+    def garbage_carts_and_potholes(self, request):
+        """Create incident about garbage carts and potholes
 
         :param request: The HTTP request.
         :return: The response.
         """
         serializer = serializers.CartsAndPotholesIncidentCreateSerializer(data=self.request.data,
                                                                           context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
+    @action(
+        methods=['post'], detail=False, url_path='createRodentBaitingIncidents',
+        serializer_class=serializers.RodentBaitingIncidentCreateSerializer,
+    )
+    def rodent_baiting(self, request):
+        """Create incident about rodent baiting
+
+        :param request: The HTTP request.
+        :return: The response.
+        """
+        serializer = serializers.RodentBaitingIncidentCreateSerializer(data=self.request.data,
+                                                                       context={'request': request})
         serializer.is_valid(raise_exception=True)
         serializer.save()
 

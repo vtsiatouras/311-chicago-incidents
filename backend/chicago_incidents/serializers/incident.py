@@ -1,10 +1,11 @@
 """Incident related serializers
 """
-from rest_framework.serializers import ModelSerializer
+from rest_framework.serializers import ModelSerializer, ValidationError
 
 from .. import models
-from ..serializers import BaseSerializer, AbandonedVehicleCreateSerializerForIncident, ActivityCreateSerializer, \
-    ValidationError, CartsAndPotholesSerializerForIncident
+from ..serializers import BaseSerializer, AbandonedVehicleCreateSerializerForIncident, \
+    ActivityCreateSerializerForIncident, CartsAndPotholesSerializerForIncident, \
+    RodentBaitingPremisesSerializerForIncident
 
 
 class IncidentSerializer(ModelSerializer):
@@ -34,7 +35,7 @@ class AbandonedVehicleIncidentCreateSerializer(BaseSerializer):
     """Serializer for creating incidents about abandoned vehicles
     """
     incident = IncidentCreateSerializer()
-    activity = ActivityCreateSerializer(required=False)
+    activity = ActivityCreateSerializerForIncident(required=False)
     abandoned_vehicle = AbandonedVehicleCreateSerializerForIncident(required=False)
 
     def validate_incident(self, incident):
@@ -61,7 +62,7 @@ class CartsAndPotholesIncidentCreateSerializer(BaseSerializer):
     """Serializer for creating incidents about potholes or garbage carts
     """
     incident = IncidentCreateSerializer()
-    activity = ActivityCreateSerializer(required=False)
+    activity = ActivityCreateSerializerForIncident(required=False)
     carts_and_potholes = CartsAndPotholesSerializerForIncident(required=False)
 
     def validate_incident(self, incident):
@@ -75,8 +76,34 @@ class CartsAndPotholesIncidentCreateSerializer(BaseSerializer):
         carts_and_potholes_data = validated_data.get('carts_and_potholes')
         incident, _ = models.Incident.objects.get_or_create(**incident_data)
         if carts_and_potholes_data:
-            carts_and_potholes, _ = models.NumberOfCartsAndPotholes.objects.\
-                get_or_create(number_of_elements=carts_and_potholes_data['number_of_elements'], incident=incident)
+            carts_and_potholes, _ = models.NumberOfCartsAndPotholes.objects. \
+                get_or_create(**carts_and_potholes_data, incident=incident)
+        if activity_data:
+            activity, _ = models.Activity.objects.get_or_create(**activity_data)
+            _ = models.ActivityIncident.objects.get_or_create(activity=activity, incident=incident)
+        return incident
+
+
+class RodentBaitingIncidentCreateSerializer(BaseSerializer):
+    """Serializer for creating incidents about rodent baiting
+    """
+    incident = IncidentCreateSerializer()
+    activity = ActivityCreateSerializerForIncident(required=False)
+    rodent_baiting_premises = RodentBaitingPremisesSerializerForIncident(required=False)
+
+    def validate_incident(self, incident):
+        if not incident.get('type_of_service_request') == models.Incident.RODENT_BAITING:
+            raise ValidationError("'type_of_service_request' should be set as 'RODENT_BAITING'")
+        return incident
+
+    def create(self, validated_data):
+        incident_data = validated_data.get('incident')
+        activity_data = validated_data.get('activity')
+        rodent_baiting_premises_data = validated_data.get('rodent_baiting_premises')
+        incident, _ = models.Incident.objects.get_or_create(**incident_data)
+        if rodent_baiting_premises_data:
+            carts_and_potholes, _ = models.RodentBaitingPremises.objects. \
+                get_or_create(**rodent_baiting_premises_data, incident=incident)
         if activity_data:
             activity, _ = models.Activity.objects.get_or_create(**activity_data)
             _ = models.ActivityIncident.objects.get_or_create(activity=activity, incident=incident)
