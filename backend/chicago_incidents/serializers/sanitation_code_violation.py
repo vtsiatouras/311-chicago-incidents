@@ -1,6 +1,5 @@
 """Sanitation code violation related serializers
 """
-from rest_framework.exceptions import ValidationError
 from rest_framework.serializers import ModelSerializer
 
 from ..models import SanitationCodeViolation

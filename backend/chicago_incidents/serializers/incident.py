@@ -5,7 +5,8 @@ from rest_framework.serializers import ModelSerializer, ValidationError
 from .. import models
 from ..serializers import BaseSerializer, AbandonedVehicleCreateSerializerForIncident, \
     ActivityCreateSerializerForIncident, RodentBaitingPremisesSerializerForIncident, \
-    GraffitiCreateSerializerForIncident, CartsAndPotholesCreateSerializer, SanitationCodeViolationCreateSerializerForIncident
+    GraffitiCreateSerializerForIncident, CartsAndPotholesCreateSerializer, \
+    SanitationCodeViolationCreateSerializerForIncident, TreeCreateSerializerForIncident
 
 
 class IncidentSerializer(ModelSerializer):
@@ -150,4 +151,30 @@ class SanitationCodeViolationIncidentCreateSerializer(BaseSerializer):
             sanitation_code, _ = models.SanitationCodeViolation.objects.get_or_create(**sanitation_data)
             _ = models.SanitationCodeViolationIncident.objects.get_or_create(sanitation_code_violation=sanitation_code,
                                                                              incident=incident)
+        return incident
+
+
+class TreeIncidentCreateSerializer(BaseSerializer):
+    """Serializer for creating incidents about trees
+    """
+    incident = IncidentCreateSerializer()
+    activity = ActivityCreateSerializerForIncident(required=False)
+    tree = TreeCreateSerializerForIncident(required=False)
+
+    def validate_incident(self, incident):
+        if not incident.get('type_of_service_request') in (models.Incident.TREE_TRIM, models.Incident.TREE_DEBRIS):
+            raise ValidationError("'type_of_service_request' should be set as 'TREE_TRIM' or 'TREE_DEBRIS'")
+        return incident
+
+    def create(self, validated_data):
+        incident_data = validated_data.get('incident')
+        activity_data = validated_data.get('activity')
+        tree_data = validated_data.get('tree')
+        incident, _ = models.Incident.objects.get_or_create(**incident_data)
+        if tree_data:
+            tree, _ = models.Tree.objects.get_or_create(**tree_data)
+            _ = models.TreeIncident.objects.get_or_create(tree=tree, incident=incident)
+        if activity_data:
+            activity, _ = models.Activity.objects.get_or_create(**activity_data)
+            _ = models.ActivityIncident.objects.get_or_create(activity=activity, incident=incident)
         return incident

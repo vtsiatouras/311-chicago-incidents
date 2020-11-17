@@ -109,6 +109,22 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
 
         return Response(status=status.HTTP_201_CREATED)
 
+    @action(
+        methods=['post'], detail=False, url_path='createTree',
+        serializer_class=serializers.TreeIncidentCreateSerializer,
+    )
+    def tree(self, request):
+        """Create incident about trees
+
+        :param request: The HTTP request.
+        :return: The response.
+        """
+        serializer = serializers.TreeIncidentCreateSerializer(data=self.request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(status=status.HTTP_201_CREATED)
+
     def get_serializer_class(self) -> typing.Type[Serializer]:
         """Get the serializer for the action.
 
