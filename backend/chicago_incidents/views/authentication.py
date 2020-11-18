@@ -26,7 +26,7 @@ from .. import serializers
     operation_summary="Partial update for a user"
 ))
 class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.RetrieveModelMixin,
-                         viewsets.mixins.UpdateModelMixin, viewsets.GenericViewSet):
+                         viewsets.mixins.ListModelMixin, viewsets.mixins.UpdateModelMixin, viewsets.GenericViewSet):
     """User view set
     """
     serializer_class = serializers.UserProfileSerializer
@@ -47,7 +47,7 @@ class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.Retri
 
         :return: The serializer.
         """
-        if self.action == 'retrieve':
+        if self.action in ('retrieve', 'list'):
             return serializers.UserProfileSerializer
         elif self.action in ('create', 'update', 'partial_update'):
             return serializers.UserCreateProfileSerializer
@@ -55,7 +55,7 @@ class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.Retri
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
         """
-        if self.action in ('update', 'partial_update', 'retrieve'):
+        if self.action in ('update', 'partial_update', 'retrieve', 'list'):
             return [IsAuthenticated()]
         else:
             return [AllowAny()]
