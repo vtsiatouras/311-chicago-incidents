@@ -9,8 +9,10 @@ from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.permissions import BasePermission, IsAuthenticated, AllowAny
 from rest_framework.serializers import Serializer
+from rest_framework_simplejwt.views import TokenObtainPairView as BaseTokenObtainPairView
 
 from .. import serializers
+from ..serializers import CustomTokenObtainPairSerializer
 
 
 @method_decorator(name='create', decorator=utils.swagger_auto_schema(
@@ -59,3 +61,7 @@ class UserProfileViewSet(viewsets.mixins.CreateModelMixin, viewsets.mixins.Retri
             return [IsAuthenticated()]
         else:
             return [AllowAny()]
+
+
+class TokenObtainPairView(BaseTokenObtainPairView):
+    serializer_class = CustomTokenObtainPairSerializer

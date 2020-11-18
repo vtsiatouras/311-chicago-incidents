@@ -4,6 +4,9 @@ from django.contrib.auth.models import User
 from django.core import exceptions
 from rest_framework.serializers import ModelSerializer, ValidationError
 from django.contrib.auth import password_validation
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
+from . import BaseSerializer
 
 
 class UserProfileSerializer(ModelSerializer):
@@ -45,3 +48,13 @@ class UserCreateProfileSerializer(ModelSerializer):
         user.is_superuser = False  # do not create superusers through the API
         user.save()
         return user
+
+
+class CustomTokenObtainPairSerializer(TokenObtainPairSerializer, BaseSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+        # Add custom claims
+        token['user_name'] = user.username
+        token['user_email'] = user.email
+        return token
