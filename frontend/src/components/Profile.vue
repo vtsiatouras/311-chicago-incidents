@@ -3,62 +3,41 @@
   <div class="container">
     <header class="jumbotron">
       <h3>
-        <strong>{{ currentUser.username }}</strong> Profile
+        <strong>{{ userName }}</strong> Profile
       </h3>
     </header>
-    <p>
-      <strong>Token:</strong>
-      {{ currentUser.access }}
-    </p>
-    <p>
+    <div>
       <strong>User Info</strong>
-      <strong> ID: {{ id }} </strong>
-      Username: {{ username }}
-      Email: {{ email }}
-    </p>
+      <p></p>
+      <p>User ID: {{ userId }}</p>
+      <p>Username: {{ userName }}</p>
+      <p>User Email: {{ userEmail }}</p>
+    </div>
   </div>
 </template>
 
 <script>
-import UserService from '../services/user.service';
+import UserService from '../services/user.service'
 
 export default {
   name: 'Profile',
   data() {
     return {
-      id: null,
-      username: null,
-      email: null
-    }
-  },
-  methods: {
-    getUserInformation() {
-      UserService.getUserInfo().then(
-          response => {
-            let resp = response.data;
-            this.id = resp[0].id
-            this.username = resp[0].username
-            this.email = resp[0].email
-          },
-          error => {
-            this.content =
-                (error.response && error.response.data) ||
-                error.message ||
-                error.toString();
-          }
-      );
+      userId: null,
+      userName: null,
+      userEmail: null
     }
   },
   computed: {
     currentUser() {
-      return this.$store.state.auth.user;
-    }
-  },
+        return this.$store.state.auth.user;
+      }
+    },
   mounted() {
     if (!this.currentUser) {
       this.$router.push('/login');
     }
-    this.getUserInformation()
+    [ this.userId, this.userName, this.userEmail ] = UserService.getUserInfoFromToken()
   }
 };
 </script>
