@@ -2,7 +2,7 @@ from django.conf.urls import url
 from django.urls import re_path, include
 from rest_auth.views import PasswordChangeView, PasswordResetView, PasswordResetConfirmView
 from rest_framework.routers import DefaultRouter
-from rest_framework_simplejwt.views import TokenRefreshView, TokenObtainPairView
+from rest_framework_simplejwt.views import TokenRefreshView
 
 from . import views
 
@@ -22,7 +22,7 @@ router.register('incidents', views.IncidentViewSet, basename='incident')
 router.register('abandoned_vehicles', views.AbandonedVehicleViewSet, basename='abandoned_vehicle')
 
 urlpatterns = [
-    re_path(r'^auth/?$', TokenObtainPairView.as_view()),
+    re_path(r'^auth/?$', views.TokenObtainPairView.as_view()),
     re_path(r'^auth/refresh/?$', TokenRefreshView.as_view()),
     # re_path(r'^account/password/reset/?$', PasswordResetView.as_view(), name='password_reset'),
     # re_path(
