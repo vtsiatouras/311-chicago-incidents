@@ -22,6 +22,16 @@ class UserProfileTests(BaseAPITestCase):
         response = self.client.get(reverse('user-detail', kwargs={'pk': 1}))
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
+    def test_user_list(self):
+        """Test that user cam view his own profile details
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('user-list'))
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]['id'], 1)
+
     def test_user_create(self):
         """Test that users can be created
         """
