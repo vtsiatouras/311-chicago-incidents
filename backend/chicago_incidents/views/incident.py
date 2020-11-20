@@ -93,7 +93,7 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
         return Response(status=status.HTTP_201_CREATED)
 
     @action(
-        methods=['post'], detail=False, url_path='createSanitationCodeViolation',
+        methods=['post'], detail=False, url_path='createSanitationCodeViolationIncidents',
         serializer_class=serializers.SanitationCodeViolationIncidentCreateSerializer,
     )
     def sanitation_code_violation(self, request):
@@ -110,7 +110,7 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
         return Response(status=status.HTTP_201_CREATED)
 
     @action(
-        methods=['post'], detail=False, url_path='createTree',
+        methods=['post'], detail=False, url_path='createTreeIncidents',
         serializer_class=serializers.TreeIncidentCreateSerializer,
     )
     def tree(self, request):

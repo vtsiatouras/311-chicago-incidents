@@ -5,7 +5,7 @@
       <div v-if="currentUser" class="navbar-nav mr-auto">
         <li class="nav-item">
           <router-link to="/home" class="nav-link">
-            <font-awesome-icon icon="home"/>
+            <font-awesome-icon icon="home" />
             Home
           </router-link>
         </li>
@@ -14,13 +14,13 @@
       <div v-if="!currentUser" class="navbar-nav ml-auto">
         <li class="nav-item">
           <router-link to="/register" class="nav-link">
-            <font-awesome-icon icon="user-plus"/>
+            <font-awesome-icon icon="user-plus" />
             Sign Up
           </router-link>
         </li>
         <li class="nav-item">
           <router-link to="/login" class="nav-link">
-            <font-awesome-icon icon="sign-in-alt"/>
+            <font-awesome-icon icon="sign-in-alt" />
             Login
           </router-link>
         </li>
@@ -29,13 +29,13 @@
       <div v-if="currentUser" class="navbar-nav ml-auto">
         <li class="nav-item">
           <router-link to="/profile" class="nav-link">
-            <font-awesome-icon icon="user"/>
+            <font-awesome-icon icon="user" />
             {{ userName }}
           </router-link>
         </li>
         <li class="nav-item">
           <a class="nav-link" href @click.prevent="logOut">
-            <font-awesome-icon icon="sign-out-alt"/>
+            <font-awesome-icon icon="sign-out-alt" />
             LogOut
           </a>
         </li>
@@ -43,7 +43,7 @@
     </nav>
 
     <div class="container">
-      <router-view/>
+      <router-view />
     </div>
   </div>
 </template>
@@ -56,20 +56,24 @@ export default {
     return {
       userId: null,
       userName: null,
-      userEmail: null
-    }
+      userEmail: null,
+    };
   },
   computed: {
     currentUser() {
-      [this.userId, this.userName, this.userEmail] = UserService.getUserInfoFromToken()
+      [
+        this.userId,
+        this.userName,
+        this.userEmail,
+      ] = UserService.getUserInfoFromToken();
       return this.$store.state.auth.user;
-    }
+    },
   },
   methods: {
     logOut() {
-      this.$store.dispatch('auth/logout');
-      this.$router.push('/login');
-    }
-  }
+      this.$store.dispatch("auth/logout");
+      this.$router.push("/login");
+    },
+  },
 };
 </script>

@@ -17,27 +17,31 @@
 </template>
 
 <script>
-import UserService from '../services/user.service'
+import UserService from "../services/user.service";
 
 export default {
-  name: 'Profile',
+  name: "Profile",
   data() {
     return {
       userId: null,
       userName: null,
-      userEmail: null
-    }
+      userEmail: null,
+    };
   },
   computed: {
     currentUser() {
-        return this.$store.state.auth.user;
-      }
+      return this.$store.state.auth.user;
     },
+  },
   mounted() {
     if (!this.currentUser) {
-      this.$router.push('/login');
+      this.$router.push("/login");
     }
-    [ this.userId, this.userName, this.userEmail ] = UserService.getUserInfoFromToken()
-  }
+    [
+      this.userId,
+      this.userName,
+      this.userEmail,
+    ] = UserService.getUserInfoFromToken();
+  },
 };
 </script>
