@@ -20,6 +20,7 @@ router = OptionalSlashRouter()
 router.register('users', views.UserProfileViewSet, basename='user')
 router.register('incidents', views.IncidentViewSet, basename='incident')
 router.register('abandoned_vehicles', views.AbandonedVehicleViewSet, basename='abandoned_vehicle')
+router.register('queries', views.QueriesViewSet, basename='queries')
 
 urlpatterns = [
     re_path(r'^auth/?$', views.TokenObtainPairView.as_view()),
