@@ -20,7 +20,8 @@
               v-if="errors.has('username')"
               class="alert alert-danger"
               role="alert"
-          >Username is required!</div>
+          >Username is required!
+          </div>
         </div>
         <div class="form-group">
           <label for="password">Password</label>
@@ -35,7 +36,8 @@
               v-if="errors.has('password')"
               class="alert alert-danger"
               role="alert"
-          >Password is required!</div>
+          >Password is required!
+          </div>
         </div>
         <div class="form-group">
           <button class="btn btn-primary btn-block" :disabled="loading">
@@ -44,7 +46,7 @@
           </button>
         </div>
         <div class="form-group">
-          <div v-if="message" class="alert alert-danger" role="alert">{{message}}</div>
+          <div v-if="message" class="alert alert-danger" role="alert">{{ message }}</div>
         </div>
       </form>
     </div>
