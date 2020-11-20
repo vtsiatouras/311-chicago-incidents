@@ -75,12 +75,26 @@ class Incident(AutoCreatedUpdatedModel):
     class Meta:
         db_table = 'incidents'
         # Constraint to avoid duplication of data
-        unique_together = ['creation_date', 'status', 'completion_date', 'service_request_number',
+        unique_together = [['creation_date', 'status', 'completion_date', 'service_request_number',
                            'type_of_service_request', 'street_address']
+                           ]
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
                                         'type_of_service_request', 'street_address']),
                    ]
+
+    def full_clean(self, exclude=None, validate_unique=True):
+        if not self.completion_date and Incident.objects.exclude(id=self.id)\
+                .filter(creation_date=self.creation_date, status=self.status, completion_date__isnull=True,
+                        service_request_number=self.service_request_number,
+                        type_of_service_request=self.type_of_service_request, street_address=self.street_address)\
+                .exists():
+            raise ValidationError("Duplicate ModelB")
+        super(Incident, self).full_clean()
+    
+    def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
+        self.full_clean()
+        return super(Incident, self).save()
 
     def __str__(self):
         """Return the string representation of the incident.

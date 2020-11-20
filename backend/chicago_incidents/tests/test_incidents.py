@@ -253,6 +253,23 @@ class IncidentTests(BaseAPITestCase):
         response = self.client.post(reverse('incident-list'), data=data, format='json')
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_incident_create_twice_with_none_values(self):
+        """Test that user can't create the same incident twice or more
+        """
+        self.authenticate('user')
+
+        data = self.__data__[0]
+        data['completion_date'] = data['zip_code'] = data['zip_codes'] = data['x_coordinate'] = data['y_coordinate'] \
+            = data['latitude'] = data['longitude'] = data['ward'] = data['wards'] = data['historical_wards_03_15'] \
+            = data['police_district'] = data['community_area'] = data['community_areas'] = data['ssa'] \
+            = data['census_tracts'] = None
+
+        response = self.client.post(reverse('incident-list'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+        response = self.client.post(reverse('incident-list'), data=data, format='json')
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_incident_create_malformed_status(self):
         """Test that user can't input malformed values
         """
