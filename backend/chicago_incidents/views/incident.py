@@ -24,7 +24,6 @@ class IncidentViewSet(viewsets.mixins.RetrieveModelMixin, viewsets.mixins.Create
     serializer_class = serializers.IncidentSerializer
     queryset = Incident.objects.all()
 
-    # @utils.swagger_auto_schema(query_serializer=serializers.AbandonedVehicleIncidentCreateSerializer)
     @action(
         methods=['post'], detail=False, url_path='createAbandonedVehicleIncidents',
         serializer_class=serializers.AbandonedVehicleIncidentCreateSerializer,
