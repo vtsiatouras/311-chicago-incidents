@@ -9,14 +9,13 @@ class UserService {
         return axios.get(API_URL + 'users/', { headers: authHeader() });
     }
 
-    getUserInfoFromToken(){
+    getUserInfoFromToken() {
         try {
             let user = JSON.parse(localStorage.getItem('user'));
             const decoded = jwt_decode(user.access)
             return [decoded.user_id, decoded.user_name, decoded.user_email]
-        }
-        catch(error){
-            return [ null, null, null ]
+        } catch (error) {
+            return [null, null, null]
         }
     }
 }

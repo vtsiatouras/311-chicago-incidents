@@ -31,6 +31,12 @@ export const router = new Router({
             name: 'profile',
             // lazy-loaded
             component: () => import('./components/Profile.vue')
+        },
+        {
+            path: '/create-incident',
+            name: 'create-incident',
+            // lazy-loaded
+            component: () => import('./components/IncidentCreate.vue')
         }
     ]
 });
