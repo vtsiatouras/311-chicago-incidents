@@ -89,7 +89,7 @@ class Incident(AutoCreatedUpdatedModel):
                         service_request_number=self.service_request_number,
                         type_of_service_request=self.type_of_service_request, street_address=self.street_address)\
                 .exists():
-            raise ValidationError("Duplicate ModelB")
+            raise ValidationError("This incident already exists")
         super(Incident, self).full_clean()
     
     def save(self, force_insert=False, force_update=False, using=None, update_fields=None):
