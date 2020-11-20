@@ -40,13 +40,53 @@ class CreateIncidentService {
             community_areas: parseInt(incident.community_areas),
             ssa: parseInt(incident.ssa),
             census_tracts: parseInt(incident.census_tracts)
+        };
+    }
+
+    _prepare_incident_activity_data(activity) {
+        if (activity.current_activity && activity.most_recent_action) {
+            return {
+                current_activity: activity.current_activity,
+                most_recent_action: activity.most_recent_action
+            };
+        } else {
+            return null;
+        }
+
+    }
+
+    _prepare_abandoned_vehicle_data(vehicle) {
+        if (vehicle.license_plate && vehicle.vehicle_make_model && vehicle.vehicle_color) {
+            return {
+                license_plate: vehicle.license_plate,
+                vehicle_make_model: vehicle.vehicle_make_model,
+                vehicle_color: vehicle.vehicle_color
+            };
+        } else {
+            return null;
         }
     }
 
     incident(incident) {
-        const data = this._prepare_incident_data(incident)
+        const data = this._prepare_incident_data(incident);
         return axios
-            .post(API_URL + 'incidents/', data, {headers: authHeader()})
+            .post(API_URL + 'incidents/', data, { headers: authHeader() })
+    }
+
+    abandonedVehicleIncident(incident, activity, vehicle) {
+        const incident_data = this._prepare_incident_data(incident);
+        const activity_data = this._prepare_incident_activity_data(activity);
+        const vehicle_data = this._prepare_abandoned_vehicle_data(vehicle);
+        const data = {};
+        data['incident'] = incident_data;
+        if (activity_data) {
+            data['activity'] = activity_data;
+        }
+        if (vehicle_data) {
+            data['abandoned_vehicle'] = vehicle_data;
+        }
+        return axios
+            .post(API_URL + 'incidents/createAbandonedVehicleIncidents/', data, { headers: authHeader() })
     }
 
 }
