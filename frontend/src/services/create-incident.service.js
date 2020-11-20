@@ -129,7 +129,7 @@ class CreateIncidentService {
             .post(API_URL + 'incidents/', data, { headers: authHeader() })
     }
 
-    abandonedVehicleIncident(incident, activity, vehicle) {
+    abandonedVehicleIncident(incident, activity, vehicle, days_of_report_as_parked) {
         const incidentData = this._prepareIncidentData(incident);
         const activityData = this._prepareIncidentActivityData(activity);
         const vehicleData = this._prepareAbandonedVehicleData(vehicle);
@@ -141,6 +141,7 @@ class CreateIncidentService {
         if (vehicleData) {
             data['abandoned_vehicle'] = vehicleData;
         }
+        data['days_of_report_as_parked'] = parseInt(days_of_report_as_parked)
         return axios
             .post(API_URL + 'incidents/createAbandonedVehicleIncidents/', data, { headers: authHeader() })
     }

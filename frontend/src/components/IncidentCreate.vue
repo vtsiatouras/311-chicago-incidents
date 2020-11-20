@@ -380,6 +380,19 @@
           >
             {{ errors.first("vehicle_color") }}
           </div>
+          <label for="days_of_report_as_parked">Days of Reported as Parked</label>
+          <b-form-input
+              class="mb-3"
+              v-model="days_of_report_as_parked"
+              placeholder="Enter number of days of reported as parked"
+          >
+          </b-form-input>
+          <div
+              v-if="submitted && errors.has('days_of_report_as_parked')"
+              class="alert-danger"
+          >
+            {{ errors.first("days_of_report_as_parked") }}
+          </div>
         </div>
         <div
             class="form-group"
@@ -586,6 +599,7 @@ export default {
       rodentBaiting: new RodentBaiting("", "", ""),
       sanitationCode: new SanitationCode(""),
       tree: new Tree(""),
+      days_of_report_as_parked: null,
       status_options: [
         {value: null, text: "Please select an option"},
         {value: "OPEN", text: "Open"},
@@ -634,7 +648,7 @@ export default {
     serviceDispatcher() {
       if (this.incident.type_of_service_request === "ABANDONED_VEHICLE") {
         return CreateIncidentService.abandonedVehicleIncident(this.incident, this.incidentActivity,
-            this.abandonedVehicle);
+            this.abandonedVehicle, this.days_of_report_as_parked);
       } else if (['GARBAGE_CART', 'POT_HOLE'].includes(this.incident.type_of_service_request)) {
         return CreateIncidentService.garbageCartsPotholesIncident(this.incident, this.incidentActivity,
             this.garbageCartPorthole);

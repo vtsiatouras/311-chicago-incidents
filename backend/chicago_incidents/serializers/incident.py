@@ -1,6 +1,6 @@
 """Incident related serializers
 """
-from rest_framework.serializers import ModelSerializer, ValidationError
+from rest_framework.serializers import ModelSerializer, ValidationError, IntegerField
 
 from .. import models
 from ..serializers import BaseSerializer, AbandonedVehicleCreateSerializerForIncident, \
@@ -38,6 +38,7 @@ class AbandonedVehicleIncidentCreateSerializer(BaseSerializer):
     incident = IncidentCreateSerializer()
     activity = ActivityCreateSerializerForIncident(required=False)
     abandoned_vehicle = AbandonedVehicleCreateSerializerForIncident(required=False)
+    days_of_report_as_parked = IntegerField(required=False, allow_null=True)
 
     def validate_incident(self, incident):
         if not incident.get('type_of_service_request') == models.Incident.ABANDONED_VEHICLE:
@@ -48,11 +49,13 @@ class AbandonedVehicleIncidentCreateSerializer(BaseSerializer):
         incident_data = validated_data.get('incident')
         activity_data = validated_data.get('activity')
         abandoned_vehicle_data = validated_data.get('abandoned_vehicle')
+        days_of_report_as_parked = validated_data.get('days_of_report_as_parked')
         incident, _ = models.Incident.objects.get_or_create(**incident_data)
         if abandoned_vehicle_data:
             abandoned_vehicle, _ = models.AbandonedVehicle.objects.get_or_create(**abandoned_vehicle_data)
             _ = models.AbandonedVehicleIncident.objects.get_or_create(abandoned_vehicle=abandoned_vehicle,
-                                                                      incident=incident)
+                                                                      incident=incident,
+                                                                      days_of_report_as_parked=days_of_report_as_parked)
         if activity_data:
             activity, _ = models.Activity.objects.get_or_create(**activity_data)
             _ = models.ActivityIncident.objects.get_or_create(activity=activity, incident=incident)
