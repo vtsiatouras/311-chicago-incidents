@@ -5,7 +5,7 @@ const API_URL = 'http://localhost:8000/api/v1/';
 
 class CreateIncidentService {
 
-    _prepare_incident_data(incident) {
+    _prepareIncidentData(incident) {
         let cr_date;
         let cm_date;
         if (incident.creation_date) {
@@ -20,13 +20,13 @@ class CreateIncidentService {
             cm_date = null;
         }
         return {
-            creation_date: cr_date,
-            completion_date: cm_date,
-            status: incident.status,
-            service_request_number: incident.service_request_number,
-            type_of_service_request: incident.type_of_service_request,
-            street_address: incident.street_address,
-            zip_code: incident.zip_code,
+            creation_date: cr_date || null,
+            completion_date: cm_date || null,
+            status: incident.status || null,
+            service_request_number: incident.service_request_number || null,
+            type_of_service_request: incident.type_of_service_request || null,
+            street_address: incident.street_address || null,
+            zip_code: incident.zip_code || null,
             zip_codes: parseInt(incident.zip_codes),
             x_coordinate: parseFloat(incident.x_coordinate),
             y_coordinate: parseFloat(incident.y_coordinate),
@@ -43,11 +43,11 @@ class CreateIncidentService {
         };
     }
 
-    _prepare_incident_activity_data(activity) {
-        if (activity.current_activity && activity.most_recent_action) {
+    _prepareIncidentActivityData(activity) {
+        if (activity.current_activity || activity.most_recent_action) {
             return {
-                current_activity: activity.current_activity,
-                most_recent_action: activity.most_recent_action
+                current_activity: activity.current_activity || null,
+                most_recent_action: activity.most_recent_action || null
             };
         } else {
             return null;
@@ -55,12 +55,68 @@ class CreateIncidentService {
 
     }
 
-    _prepare_abandoned_vehicle_data(vehicle) {
-        if (vehicle.license_plate && vehicle.vehicle_make_model && vehicle.vehicle_color) {
+    _prepareAbandonedVehicleData(vehicle) {
+        if (vehicle.license_plate || vehicle.vehicle_make_model || vehicle.vehicle_color) {
             return {
-                license_plate: vehicle.license_plate,
-                vehicle_make_model: vehicle.vehicle_make_model,
-                vehicle_color: vehicle.vehicle_color
+                license_plate: vehicle.license_plate || null,
+                vehicle_make_model: vehicle.vehicle_make_model || null,
+                vehicle_color: vehicle.vehicle_color || null
+            };
+        } else {
+            return null;
+        }
+    }
+
+    _prepareGarbageCartsPotholesData(garbageCartPorthole) {
+        if (garbageCartPorthole.number_of_elements) {
+            return {
+                number_of_elements:  parseInt(garbageCartPorthole.number_of_elements)
+            };
+        } else {
+            return null;
+        }
+    }
+
+    _prepareGraffitiData(graffiti) {
+        if (graffiti.surface || graffiti.location) {
+            return {
+                surface :graffiti.surface || null,
+                location: graffiti.location || null
+            };
+        } else {
+            return null;
+        }
+    }
+
+    _prepareRodentBaitingData(rodentBaiting) {
+        console.log(rodentBaiting)
+        if (rodentBaiting.number_of_premises_baited || rodentBaiting.number_of_premises_w_garbage ||
+            rodentBaiting.number_of_premises_w_rats) {
+
+            return {
+                number_of_premises_baited:  parseInt(rodentBaiting.number_of_premises_baited),
+                number_of_premises_w_garbage:  parseInt(rodentBaiting.number_of_premises_w_garbage),
+                number_of_premises_w_rats:  parseInt(rodentBaiting.number_of_premises_w_rats)
+            };
+        } else {
+            return null;
+        }
+    }
+
+    _prepareSanitationCodeData(codeViolation) {
+        if (codeViolation.nature_of_code_violation) {
+            return {
+                nature_of_code_violation: codeViolation.nature_of_code_violation || null
+            };
+        } else {
+            return null;
+        }
+    }
+
+    _prepareTreeData(tree) {
+        if (tree) {
+            return {
+                location: tree.location || null
             };
         } else {
             return null;
@@ -68,25 +124,99 @@ class CreateIncidentService {
     }
 
     incident(incident) {
-        const data = this._prepare_incident_data(incident);
+        const data = this._prepareIncidentData(incident);
         return axios
             .post(API_URL + 'incidents/', data, { headers: authHeader() })
     }
 
     abandonedVehicleIncident(incident, activity, vehicle) {
-        const incident_data = this._prepare_incident_data(incident);
-        const activity_data = this._prepare_incident_activity_data(activity);
-        const vehicle_data = this._prepare_abandoned_vehicle_data(vehicle);
+        const incidentData = this._prepareIncidentData(incident);
+        const activityData = this._prepareIncidentActivityData(activity);
+        const vehicleData = this._prepareAbandonedVehicleData(vehicle);
         const data = {};
-        data['incident'] = incident_data;
-        if (activity_data) {
-            data['activity'] = activity_data;
+        data['incident'] = incidentData;
+        if (activityData) {
+            data['activity'] = activityData;
         }
-        if (vehicle_data) {
-            data['abandoned_vehicle'] = vehicle_data;
+        if (vehicleData) {
+            data['abandoned_vehicle'] = vehicleData;
         }
         return axios
             .post(API_URL + 'incidents/createAbandonedVehicleIncidents/', data, { headers: authHeader() })
+    }
+
+    garbageCartsPotholesIncident(incident, activity, garbageCartPorthole) {
+        const incidentData = this._prepareIncidentData(incident);
+        const activityData = this._prepareIncidentActivityData(activity);
+        const garbageCartPortholeData = this._prepareGarbageCartsPotholesData(garbageCartPorthole);
+        const data = {};
+        data['incident'] = incidentData;
+        if (activityData) {
+            data['activity'] = activityData;
+        }
+        if (garbageCartPortholeData) {
+            data['carts_and_potholes'] = garbageCartPortholeData;
+        }
+        return axios
+            .post(API_URL + 'incidents/createGarbageCartsAndPotholesIncidents/', data, { headers: authHeader() })
+    }
+
+    graffitiIncident(incident, graffiti) {
+        const incidentData = this._prepareIncidentData(incident);
+        const graffitiData = this._prepareGraffitiData(graffiti);
+        const data = {};
+        data['incident'] = incidentData;
+        if (graffitiData) {
+            data['graffiti'] = graffitiData;
+        }
+        return axios
+            .post(API_URL + 'incidents/createGraffitiIncidents/', data, { headers: authHeader() })
+
+    }
+
+    rodentBaitingIncident(incident, activity, rodentBaiting) {
+        const incidentData = this._prepareIncidentData(incident);
+        const activityData = this._prepareIncidentActivityData(activity);
+        const rodentBaitingData = this._prepareRodentBaitingData(rodentBaiting);
+        const data = {};
+        data['incident'] = incidentData;
+        if (activityData) {
+            data['activity'] = activityData;
+        }
+        if (rodentBaitingData) {
+            data['rodent_baiting_premises'] = rodentBaitingData;
+        }
+        console.log(data)
+        return axios
+            .post(API_URL + 'incidents/createRodentBaitingIncidents/', data, { headers: authHeader() })
+    }
+
+    sanitationCodeIncident(incident, sanitationCode) {
+        const incidentData = this._prepareIncidentData(incident);
+        const sanitationCodeData = this._prepareSanitationCodeData(sanitationCode);
+        const data = {};
+        data['incident'] = incidentData;
+        if (sanitationCodeData) {
+            data['sanitation_code_violation'] = sanitationCodeData;
+        }
+        return axios
+            .post(API_URL + 'incidents/createSanitationCodeViolationIncidents/', data, { headers: authHeader() })
+    }
+
+    treeIncident(incident, activity, tree) {
+        const incidentData = this._prepareIncidentData(incident);
+        const activityData = this._prepareIncidentActivityData(activity);
+        const treeData = this._prepareTreeData(tree);
+        const data = {};
+        data['incident'] = incidentData;
+        if (activityData) {
+            data['activity'] = activityData;
+        }
+        if (treeData) {
+            data['tree'] = treeData;
+        }
+        return axios
+            .post(API_URL + 'incidents/createTreeIncidents/', data, { headers: authHeader() })
     }
 
 }
