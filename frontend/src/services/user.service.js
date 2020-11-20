@@ -6,7 +6,7 @@ const API_URL = 'http://localhost:8000/api/v1/';
 
 class UserService {
     getUserInfoFromAPI() {
-        return axios.get(API_URL + 'users/', {headers: authHeader()});
+        return axios.get(API_URL + 'users/', { headers: authHeader() });
     }
 
     getUserInfoFromToken() {

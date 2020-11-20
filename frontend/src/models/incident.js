@@ -1,8 +1,8 @@
 export default class Incident {
     constructor(creation_date, completion_date, status, service_request_number, type_of_service_request,
-                street_address, zip_code, zip_codes, x_coordinate, y_coordinate, latitude, longitude,
-                ward, wards, historical_wards_03_15, police_district, community_area, community_areas, ssa,
-                census_tracts) {
+        street_address, zip_code, zip_codes, x_coordinate, y_coordinate, latitude, longitude,
+        ward, wards, historical_wards_03_15, police_district, community_area, community_areas, ssa,
+        census_tracts) {
         this.creation_date = creation_date;
         this.completion_date = completion_date;
         this.status = status;
