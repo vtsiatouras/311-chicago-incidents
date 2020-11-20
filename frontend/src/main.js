@@ -3,7 +3,9 @@ import App from './App.vue';
 import { router } from './router';
 import store from './store';
 import 'bootstrap';
-import 'bootstrap/dist/css/bootstrap.min.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css'
+import BootstrapVue from 'bootstrap-vue';
 import VeeValidate from 'vee-validate';
 import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
@@ -20,6 +22,7 @@ library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt);
 Vue.config.productionTip = false;
 
 Vue.use(VeeValidate);
+Vue.use(BootstrapVue);
 Vue.component('font-awesome-icon', FontAwesomeIcon);
 
 new Vue({
