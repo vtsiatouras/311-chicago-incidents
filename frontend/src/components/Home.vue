@@ -3,6 +3,8 @@
     <header class="jumbotron">
       <h3>Chicago Incidents Actions</h3>
     </header>
+    <button class="btn btn-primary" @click="$router.push('create-incident')" >Create an Incident</button>
+
   </div>
 </template>
 
@@ -14,6 +16,7 @@ export default {
       content: ''
     };
   },
-  mounted() {}
+  mounted() {
+  }
 };
 </script>
