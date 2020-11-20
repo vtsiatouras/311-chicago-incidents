@@ -363,11 +363,11 @@
         </div>
         <div class="form-group" v-if="['GARBAGE_CART', 'POT_HOLE'].includes(incident.type_of_service_request)">
           <div v-if="incident.type_of_service_request === 'GARBAGE_CART'">
-            <h4 >Garbage Cart Details</h4>
+            <h4>Garbage Cart Details</h4>
             <label for="number_of_elements">Number of Carts</label>
           </div>
           <div v-if="incident.type_of_service_request === 'POT_HOLE'">
-            <h4 >Potholes Details</h4>
+            <h4>Potholes Details</h4>
             <label for="number_of_elements">Number of Potholes</label>
           </div>
           <b-form-input
@@ -384,7 +384,7 @@
           </div>
         </div>
         <div class="form-group" v-if="incident.type_of_service_request === 'GRAFFITI'">
-          <h4 >Graffiti Removal Details</h4>
+          <h4>Graffiti Removal Details</h4>
           <label for="surface">Surface</label>
           <b-form-input
               class="mb-3"
@@ -411,7 +411,7 @@
           </div>
         </div>
         <div class="form-group" v-if="incident.type_of_service_request === 'SANITATION_CODE'">
-          <h4 >Sanitation Code Violation Complaint</h4>
+          <h4>Sanitation Code Violation Complaint</h4>
           <label for="nature_of_code_violation">Nature of Code Violation</label>
           <b-form-input
               class="mb-3"
@@ -427,10 +427,10 @@
         </div>
         <div class="form-group" v-if="['TREE_TRIM', 'TREE_DEBRIS'].includes(incident.type_of_service_request)">
           <div v-if="incident.type_of_service_request === 'TREE_TRIM'">
-            <h4 >Tree Trims Details</h4>
+            <h4>Tree Trims Details</h4>
           </div>
           <div v-if="incident.type_of_service_request === 'TREE_DEBRIS'">
-            <h4 >Tree Debris Details</h4>
+            <h4>Tree Debris Details</h4>
           </div>
           <label for="location">Location</label>
           <b-form-input
@@ -448,6 +448,9 @@
         <div class="form-group">
           <button class="btn btn-primary">Submit</button>
         </div>
+        <div class="form-group">
+          <div v-if="message" class="alert alert-danger" role="alert">{{ message }}</div>
+        </div>
       </div>
     </form>
   </div>
@@ -462,6 +465,7 @@ import Graffiti from "@/models/graffiti";
 import RodentBaiting from "@/models/rodentBaiting";
 import SanitationCode from "@/models/sanitationCode";
 import Tree from "@/models/tree";
+import CreateIncidentService from '../services/create-incident.service';
 
 export default {
   name: "IncidentCreate",
@@ -509,10 +513,39 @@ export default {
       this.submitted = true;
       this.$validator.validate().then(isValid => {
         if (isValid) {
+          this.serviceDispatcher().then(
+              () => {
+                this.$router.push('/home');
+              },
+              error => {
+                this.loading = false;
+                this.message =
+                    (error.response && error.response.data) ||
+                    error.message ||
+                    error.toString();
+              }
+          )
           this.successful = true;
           console.log('aaa')
         }
       });
+    },
+    serviceDispatcher() {
+      if (this.incident.type_of_service_request === 'ABANDONED_VEHICLE') {
+        console.log('aaa')
+        // } else if (['GARBAGE_CART', 'POT_HOLE'].includes(this.incident.type_of_service_request)) {
+        //
+        // } else if (this.incident.type_of_service_request === 'GRAFFITI') {
+        //
+        // } else if (this.incident.type_of_service_request === 'RODENT_BAITING') {
+        //
+        // } else if (this.incident.type_of_service_request === 'SANITATION_CODE') {
+        //
+        // } else if (['TREE_TRIM', 'TREE_DEBRIS'].includes(this.incident.type_of_service_request)) {
+
+      } else {
+        return CreateIncidentService.incident(this.incident)
+      }
     },
   }
 }

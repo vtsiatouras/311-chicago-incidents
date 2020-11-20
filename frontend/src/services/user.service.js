@@ -6,17 +6,16 @@ const API_URL = 'http://localhost:8000/api/v1/';
 
 class UserService {
     getUserInfoFromAPI() {
-        return axios.get(API_URL + 'users/', { headers: authHeader() });
+        return axios.get(API_URL + 'users/', {headers: authHeader()});
     }
 
-    getUserInfoFromToken(){
+    getUserInfoFromToken() {
         try {
             let user = JSON.parse(localStorage.getItem('user'));
             const decoded = jwt_decode(user.access)
             return [decoded.user_id, decoded.user_name, decoded.user_email]
-        }
-        catch(error){
-            return [ null, null, null ]
+        } catch (error) {
+            return [null, null, null]
         }
     }
 }
