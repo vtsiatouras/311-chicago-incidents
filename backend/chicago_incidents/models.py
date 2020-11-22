@@ -81,6 +81,7 @@ class Incident(AutoCreatedUpdatedModel):
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
                                         'type_of_service_request', 'street_address']),
+                   models.Index(fields=['type_of_service_request'])
                    ]
 
     def full_clean(self, exclude=None, validate_unique=True):
