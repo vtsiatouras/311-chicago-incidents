@@ -17,7 +17,17 @@ class IncidentSerializer(ModelSerializer):
         model = models.Incident
         fields = ['id', 'creation_date', 'completion_date', 'status', 'service_request_number',
                   'type_of_service_request', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate', 'latitude',
-                  'ward', 'longitude', 'police_district', 'community_area', 'ssa', 'census_tracts']
+                  'longitude', 'ward', 'police_district', 'community_area', 'ssa', 'census_tracts']
+
+
+class IncidentMinifiedSerializer(ModelSerializer):
+    """Incident minified serializer
+    """
+
+    class Meta:
+        models = models.Incident
+        fields = ['id', 'creation_date', 'completion_date','service_request_number', 'type_of_service_request',
+                  'street_address', 'zip_code', 'latitude', 'longitude']
 
 
 class IncidentCreateSerializer(ModelSerializer):
