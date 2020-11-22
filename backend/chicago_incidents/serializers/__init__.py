@@ -5,6 +5,7 @@ from .activity import *
 from .carts_and_potholes import *
 from .graffiti import *
 from .rodent_baiting_premises import *
+from .queries import *
 from .sanitation_code_violation import *
 from .tree import *
 from .incident import *
