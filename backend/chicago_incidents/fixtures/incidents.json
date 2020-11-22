@@ -23,7 +23,7 @@
     "fields": {
       "created_at": "2020-11-15T16:41:35.455Z",
       "updated_at": "2020-11-15T16:41:35.455Z",
-      "creation_date": "2020-11-15T16:41:35.455Z",
+      "creation_date": "2020-07-15T16:41:35.455Z",
       "completion_date": "2020-11-15T16:41:35.455Z",
       "status": "OPEN",
       "service_request_number": "123451-asdf",
@@ -38,11 +38,11 @@
   },
   {
     "model": "chicago_incidents.incident",
-    "pk": 1,
+    "pk": 2,
     "fields": {
       "created_at": "2020-11-15T16:41:35.455Z",
       "updated_at": "2020-11-15T16:41:35.455Z",
-      "creation_date": "2020-11-15T16:41:35.455Z",
+      "creation_date": "2020-08-15T16:41:35.455Z",
       "completion_date": "2020-11-15T16:41:35.455Z",
       "status": "COMPLETED",
       "service_request_number": "123451-asdf",
@@ -57,11 +57,11 @@
   },
   {
     "model": "chicago_incidents.incident",
-    "pk": 1,
+    "pk": 3,
     "fields": {
       "created_at": "2020-11-15T16:41:35.455Z",
       "updated_at": "2020-11-15T16:41:35.455Z",
-      "creation_date": "2020-11-15T16:41:35.455Z",
+      "creation_date": "2020-09-15T16:41:35.455Z",
       "completion_date": "2020-11-15T16:41:35.455Z",
       "status": "COMPLETED_DUP",
       "service_request_number": "123451-asdf",
@@ -76,7 +76,26 @@
   },
   {
     "model": "chicago_incidents.incident",
-    "pk": 1,
+    "pk": 4,
+    "fields": {
+      "created_at": "2020-11-15T16:41:35.455Z",
+      "updated_at": "2020-11-15T16:41:35.455Z",
+      "creation_date": "2020-10-15T16:41:35.455Z",
+      "completion_date": "2020-11-15T16:41:35.455Z",
+      "status": "OPEN",
+      "service_request_number": "123451-asdf-123",
+      "type_of_service_request": "ABANDONED_VEHICLE",
+      "street_address" : "address 123",
+      "zip_code": "12345",
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": "12.12345",
+      "longitude": "12.12345"
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 7,
     "fields": {
       "created_at": "2020-11-15T16:41:35.455Z",
       "updated_at": "2020-11-15T16:41:35.455Z",
@@ -84,7 +103,7 @@
       "completion_date": "2020-11-15T16:41:35.455Z",
       "status": "OPEN",
       "service_request_number": "123451-asdf-123",
-      "type_of_service_request": "ABANDONED_VEHICLE",
+      "type_of_service_request": "ALLEY_LIGHTS_ALL_OUT",
       "street_address" : "address 123",
       "zip_code": "12345",
       "x_coordinate": "12.12345",
