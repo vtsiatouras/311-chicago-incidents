@@ -32,8 +32,8 @@ class DateAndRequestTypeParams(DateRangeParams):
 class DateParam(BaseSerializer):
     """The serializer for one date
     """
-    date = serializers.DateField(required=True, input_formats=DATE_INPUT_FORMATS, help_text='The date for data to '
-                                                                                            'include')
+    date = serializers.DateField(required=True, input_formats=DATE_INPUT_FORMATS,
+                                 help_text='The date for data to include')
 
 
 class TotalRequestsPerTypeSerializer(BaseSerializer):
@@ -44,6 +44,8 @@ class TotalRequestsPerTypeSerializer(BaseSerializer):
 
 
 class TotalRequestsPerDaySerializer(BaseSerializer):
+    """The serializer for the total requests per day
+    """
     creation_date = serializers.DateTimeField()
     number_of_requests = serializers.IntegerField()
 
@@ -54,3 +56,10 @@ class MostFrequentRequestPerZipCode(BaseSerializer):
     zip_code = serializers.IntegerField()
     type_of_service_request = serializers.CharField()
     number_of_requests = serializers.IntegerField()
+
+
+class AverageCompletionTimePerRequest(BaseSerializer):
+    """The serializer for average completion time per request
+    """
+    type_of_service_request = serializers.CharField()
+    average_completion_time = serializers.CharField()

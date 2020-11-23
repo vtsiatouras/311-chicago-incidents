@@ -1,7 +1,7 @@
 import typing
 
 from django.db import connection
-from django.db.models import Count
+from django.db.models import Count, Avg, F
 from drf_yasg import utils
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -74,7 +74,6 @@ class QueriesViewSet(viewsets.GenericViewSet):
 
         serializer = serializers.TotalRequestsPerDaySerializer(queryset, many=True)
         return Response(serializer.data)
-        # return Response(queryset)
 
     @utils.swagger_auto_schema(
         operation_summary='Find the most common service request per zipcode for a specific day.',
@@ -113,7 +112,36 @@ class QueriesViewSet(viewsets.GenericViewSet):
         serializer = serializers.MostFrequentRequestPerZipCode(queryset, many=True)
         return Response(serializer.data)
 
-    
+    @utils.swagger_auto_schema(
+        operation_summary='Find the average completion time per service request for a specific date range.',
+        operation_description='',
+        query_serializer=serializers.DateRangeParams
+    )
+    @action(
+        methods=['get'], detail=False, url_path='averageCompletionTimePerRequest',
+        serializer_class=serializers.AverageCompletionTimePerRequest
+    )
+    def average_completion_time_per_request(self, request):  # TODO needs tests
+        query_params = serializers.DateRangeParams(data=self.request.query_params, context={'request': request})
+        query_params.is_valid(raise_exception=True)
+        data = query_params.validated_data
+
+        # Raw SQL query (printed out executing print(queryset.query)") (%s: input values):
+        # SELECT "incidents"."type_of_service_request",
+        # AVG(("incidents"."completion_date" - "incidents"."creation_date")) AS "average_completion_time"
+        # FROM "incidents"
+        # WHERE ("incidents"."completion_date" IS NOT NULL
+        # AND "incidents"."creation_date" >= %s
+        # AND "incidents"."creation_date" <= %s)
+        # GROUP BY "incidents"."type_of_service_request"
+        # ORDER BY "incidents"."type_of_service_request" ASC
+        queryset = Incident.objects.filter(creation_date__gte=data.get('start_date'),
+                                           creation_date__lte=data.get('end_date')) \
+            .values('type_of_service_request') \
+            .annotate(average_completion_time=Avg(F('completion_date') - F('creation_date'))) \
+            .order_by('type_of_service_request')
+        serializer = serializers.AverageCompletionTimePerRequest(queryset, many=True)
+        return Response(serializer.data)
 
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
