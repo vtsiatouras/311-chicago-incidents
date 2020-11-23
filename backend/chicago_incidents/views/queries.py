@@ -53,7 +53,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='totalRequestsPerDay',
         serializer_class=serializers.TotalRequestsPerDaySerializer
     )
-    def total_requests_per_day(self, request):  # TODO needs tests
+    def total_requests_per_day(self, request):
         query_params = serializers.DateAndRequestTypeParams(data=self.request.query_params,
                                                             context={'request': request})
         query_params.is_valid(raise_exception=True)
@@ -84,7 +84,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='mostCommonServicePerZipcode',
         serializer_class=serializers.MostFrequentRequestPerZipCode
     )
-    def most_common_service_per_zipcode(self, request):  # TODO needs tests
+    def most_common_service_per_zipcode(self, request):
         query_params = serializers.DateParam(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
@@ -121,7 +121,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='averageCompletionTimePerRequest',
         serializer_class=serializers.AverageCompletionTimePerRequest
     )
-    def average_completion_time_per_request(self, request):  # TODO needs tests
+    def average_completion_time_per_request(self, request):
         query_params = serializers.DateRangeParams(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
