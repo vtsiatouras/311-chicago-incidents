@@ -82,6 +82,7 @@ class Incident(AutoCreatedUpdatedModel):
         indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
                                         'type_of_service_request', 'street_address']),
                    models.Index(fields=['creation_date']),
+                   models.Index(fields=['zip_code']),
                    models.Index(fields=['type_of_service_request']),
                    ]
 
