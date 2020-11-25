@@ -47,6 +47,8 @@ class DateParamWCoordinates(DateParam):
 
 
 class RodentBaitingParams(BaseSerializer):
+    """The serializer for querying the rodent baiting incidents
+    """
     BAITED = 'BAITED'
     GARBAGE = 'GARBAGE'
     RATS = 'RATS'
@@ -58,6 +60,13 @@ class RodentBaitingParams(BaseSerializer):
     ]
     threshold = serializers.IntegerField(required=True, help_text='The specified number')
     type_of_premises = serializers.ChoiceField(choices=TYPE_CHOICES, help_text='The type of the metric to group by')
+
+
+class PotHolesAndRodentBaitingParams(BaseSerializer):
+    """The serializer for querying police districts given thresholds about potholes and rodent baiting incidents
+    """
+    potholes_threshold = serializers.IntegerField(required=True, help_text='The specified number')
+    rodent_baiting_threshold = serializers.IntegerField(required=True, help_text='The specified number')
 
 
 class TotalRequestsPerTypeSerializer(BaseSerializer):
@@ -113,3 +122,10 @@ class VehicleColorSerializer(BaseSerializer):
     """
     vehicle_color = serializers.CharField()
     color_count = serializers.IntegerField()
+
+
+class PoliceDistrictSerializer(BaseSerializer):
+    """The serializer for police districts
+    """
+    police_district = serializers.IntegerField()
+    date = serializers.DateField()

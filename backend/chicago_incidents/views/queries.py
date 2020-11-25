@@ -1,7 +1,7 @@
 import typing
 
 from django.db import connection
-from django.db.models import Count, Avg, F, Q, CharField
+from django.db.models import Count, Avg, F, Q, CharField, Sum
 from django.db.models.functions import Concat
 from drf_yasg import utils
 from rest_framework import viewsets
@@ -182,9 +182,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         queryset = Incident.objects.filter(creation_date=data.get('date'),
                                            latitude__range=[data.get('b_latitude'), data.get('a_latitude')],
                                            longitude__range=[data.get('a_longitude'), data.get('b_longitude')]) \
-            .values('type_of_service_request') \
-            .annotate(number_of_requests=Count('type_of_service_request')) \
-            .order_by('-number_of_requests')[:1]
+                       .values('type_of_service_request') \
+                       .annotate(number_of_requests=Count('type_of_service_request')) \
+                       .order_by('-number_of_requests')[:1]
 
         serializer = serializers.MostFrequentRequestSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -200,7 +200,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='top5SSA',
         serializer_class=serializers.RequestsPerSSASerializer
     )
-    def top_5_ssa_per_day(self, request):   # TODO add tests
+    def top_5_ssa_per_day(self, request):  # TODO add tests
         query_params = serializers.DateRangeParams(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
@@ -217,9 +217,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         queryset = Incident.objects.filter(creation_date__gte=data.get('start_date'),
                                            creation_date__lte=data.get('end_date'),
                                            ssa__isnull=False) \
-            .values('ssa') \
-            .annotate(number_of_requests=Count('service_request_number')) \
-            .order_by('-number_of_requests')[:5]
+                       .values('ssa') \
+                       .annotate(number_of_requests=Count('service_request_number')) \
+                       .order_by('-number_of_requests')[:5]
         serializer = serializers.RequestsPerSSASerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -276,9 +276,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         # ORDER BY "color_count" DESC
         # LIMIT 1 OFFSET 1
         queryset = AbandonedVehicle.objects.filter(vehicle_color__isnull=False) \
-            .values('vehicle_color') \
-            .annotate(color_count=Count('vehicle_color')) \
-            .order_by('-color_count')[1:2]
+                       .values('vehicle_color') \
+                       .annotate(color_count=Count('vehicle_color')) \
+                       .order_by('-color_count')[1:2]
         print(queryset.query)
         serializer = serializers.VehicleColorSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -299,6 +299,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
         type_of_premises = data.get('type_of_premises')
+
         # Raw SQL (without pagination)
         #
         # SELECT "incidents"."id", "incidents"."service_request_number", "incidents"."type_of_service_request",
@@ -307,14 +308,13 @@ class QueriesViewSet(viewsets.GenericViewSet):
         # INNER JOIN "rodent_baiting_premises"
         # ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
         # WHERE "rodent_baiting_premises"."number_of_premises_baited" < 2
-
         queryset = Incident.objects.values('id', 'service_request_number', 'type_of_service_request',
                                            'street_address', 'zip_code', 'latitude', 'longitude')
         if type_of_premises == serializers.RodentBaitingParams.BAITED:
             queryset = queryset.filter(rodent_baiting_premises__number_of_premises_baited__lt=data.get('threshold')) \
                 .order_by('id')
         elif type_of_premises == serializers.RodentBaitingParams.GARBAGE:
-            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_garbage__lt=data.get('threshold'))\
+            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_garbage__lt=data.get('threshold')) \
                 .order_by('id')
         elif type_of_premises == serializers.RodentBaitingParams.RATS:
             queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_rats__lt=data.get('threshold')) \
@@ -326,6 +326,48 @@ class QueriesViewSet(viewsets.GenericViewSet):
         page = self.paginate_queryset(self.filter_queryset(queryset=queryset))
         serializer = serializers.IncidentMinifiedSerializer(page, many=True)
         return Response(serializer.data)
+
+    @utils.swagger_auto_schema(
+        operation_summary='Find the police districts that have handled “pot holes” requests with more than one number '
+                          'of potholes on the same day that they also handled “rodent baiting” requests with more than '
+                          'one number of premises baited, for a specific day.',
+        operation_description='',
+        query_serializer=serializers.PotHolesAndRodentBaitingParams
+    )
+    @action(
+        methods=['get'], detail=False, url_path='policeDistrict',
+        serializer_class=serializers.PoliceDistrictSerializer
+    )
+    def police_districts(self, request):
+        query_params = serializers.PotHolesAndRodentBaitingParams(data=self.request.query_params,
+                                                                  context={'request': request})
+        query_params.is_valid(raise_exception=True)
+        data = query_params.validated_data
+
+        # Raw SQL
+        #
+        # SELECT "incidents"."police_district", "incidents"."completion_date",
+        # SUM("rodent_baiting_premises"."number_of_premises_baited") AS "rodent_baiting_count",
+        # SUM("number_of_carts_and_potholes"."number_of_elements") AS "potholes_count"
+        # FROM "incidents"
+        # LEFT OUTER JOIN "rodent_baiting_premises" ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
+        # LEFT OUTER JOIN "number_of_carts_and_potholes"
+        # ON ("incidents"."id" = "number_of_carts_and_potholes"."incident_id")
+        # WHERE ("incidents"."type_of_service_request" = 'RODENT_BAITING'
+        # OR "incidents"."type_of_service_request" = 'POT_HOLE')
+        # GROUP BY "incidents"."police_district", "incidents"."completion_date"
+        # HAVING (SUM("number_of_carts_and_potholes"."number_of_elements") > %s
+        # AND SUM("rodent_baiting_premises"."number_of_premises_baited") > %s)
+        queryset = Incident.objects.filter(Q(type_of_service_request=Incident.RODENT_BAITING) | Q(
+            type_of_service_request=Incident.POT_HOLE)) \
+            .values('police_district', 'completion_date') \
+            .annotate(rodent_baiting_count=Sum('rodent_baiting_premises__number_of_premises_baited'),
+                      potholes_count=Sum('number_of_carts_and_potholes__number_of_elements')) \
+            .filter(rodent_baiting_count__gt=data.get('rodent_baiting_threshold'),
+                    potholes_count__gt=data.get('potholes_threshold'))
+        print(queryset.query)
+        print(queryset)
+        return Response()
 
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
