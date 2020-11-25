@@ -265,6 +265,10 @@ class RodentBaitingPremises(AutoCreatedUpdatedModel):
         # Constraint to avoid duplication of data
         unique_together = ['number_of_premises_baited', 'number_of_premises_w_garbage', 'number_of_premises_w_rats',
                            'incident']
+        indexes = [models.Index(fields=['number_of_premises_baited']),
+                   models.Index(fields=['number_of_premises_w_garbage']),
+                   models.Index(fields=['number_of_premises_w_rats'])
+                   ]
 
     def clean(self):
         super().clean()
