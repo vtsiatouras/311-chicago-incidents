@@ -1,7 +1,8 @@
 import typing
 
 from django.db import connection
-from django.db.models import Count, Avg, F
+from django.db.models import Count, Avg, F, Q, CharField
+from django.db.models.functions import Concat
 from drf_yasg import utils
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -9,7 +10,7 @@ from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 
 from .. import serializers
-from ..models import Incident
+from ..models import Incident, AbandonedVehicle
 
 
 class QueriesViewSet(viewsets.GenericViewSet):
@@ -32,6 +33,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
         # Raw SQL query (printed out executing print(queryset.query)") (%s: input dates):
+        #
         # SELECT "incidents"."type_of_service_request", COUNT("incidents"."type_of_service_request") AS
         #   "number_of_requests" FROM "incidents" WHERE ("incidents"."creation_date" >= %s AND
         #   "incidents"."creation_date" <= %s) GROUP BY "incidents"."type_of_service_request"
@@ -60,6 +62,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         data = query_params.validated_data
 
         # Raw SQL query (printed out executing print(queryset.query)") (%s: input values):
+        #
         # SELECT "incidents"."creation_date", COUNT("incidents"."service_request_number") AS "number_of_requests"
         # FROM "incidents" WHERE ("incidents"."creation_date" >= %s AND
         # "incidents"."creation_date" <= %s
@@ -82,7 +85,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
     )
     @action(
         methods=['get'], detail=False, url_path='mostCommonServicePerZipcode',
-        serializer_class=serializers.MostFrequentRequestPerZipCode
+        serializer_class=serializers.MostFrequentRequestPerZipCodeSerializer
     )
     def most_common_service_per_zipcode(self, request):
         query_params = serializers.DateParam(data=self.request.query_params, context={'request': request})
@@ -96,20 +99,20 @@ class QueriesViewSet(viewsets.GenericViewSet):
 
         queryset = []
         with connection.cursor() as cursor:
-            cursor.execute('select distinct on (incidents.zip_code) incidents.zip_code, \
+            cursor.execute('SELECT DISTINCT ON (incidents.zip_code) incidents.zip_code, \
                             incidents.type_of_service_request, \
-                            count(incidents.type_of_service_request) as number_of_requests \
-                            from incidents \
-                            where incidents.zip_code is not null and incidents.creation_date = %s \
-                            group by incidents.zip_code, incidents.type_of_service_request \
-                            order by incidents.zip_code, number_of_requests desc', [data.get('date')])
+                            COUNT(incidents.type_of_service_request) AS number_of_requests \
+                            FROM incidents \
+                            WHERE incidents.zip_code IS NOT NULL AND incidents.creation_date = %s \
+                            GROUP BY incidents.zip_code, incidents.type_of_service_request \
+                            ORDER BY incidents.zip_code, number_of_requests DESC', [data.get('date')])
 
             # Flush out the results to list
             columns = [column[0] for column in cursor.description]
             for row in cursor.fetchall():
                 queryset.append(dict(zip(columns, row)))
 
-        serializer = serializers.MostFrequentRequestPerZipCode(queryset, many=True)
+        serializer = serializers.MostFrequentRequestPerZipCodeSerializer(queryset, many=True)
         return Response(serializer.data)
 
     @utils.swagger_auto_schema(
@@ -119,7 +122,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
     )
     @action(
         methods=['get'], detail=False, url_path='averageCompletionTimePerRequest',
-        serializer_class=serializers.AverageCompletionTimePerRequest
+        serializer_class=serializers.AverageCompletionTimePerRequestSerializer
     )
     def average_completion_time_per_request(self, request):
         query_params = serializers.DateRangeParams(data=self.request.query_params, context={'request': request})
@@ -127,6 +130,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         data = query_params.validated_data
 
         # Raw SQL query (printed out executing print(queryset.query)") (%s: input values):
+        #
         # SELECT "incidents"."type_of_service_request",
         # AVG(("incidents"."completion_date" - "incidents"."creation_date")) AS "average_completion_time"
         # FROM "incidents"
@@ -140,7 +144,118 @@ class QueriesViewSet(viewsets.GenericViewSet):
             .values('type_of_service_request') \
             .annotate(average_completion_time=Avg(F('completion_date') - F('creation_date'))) \
             .order_by('type_of_service_request')
-        serializer = serializers.AverageCompletionTimePerRequest(queryset, many=True)
+        serializer = serializers.AverageCompletionTimePerRequestSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @utils.swagger_auto_schema(
+        operation_summary='Find the most common service request in a specified bounding box '
+                          '(as designated by GPS-coordinates) for a specific day.',
+        operation_description='',
+        query_serializer=serializers.DateParamWCoordinates
+    )
+    @action(
+        methods=['get'], detail=False, url_path='mostCommonServiceInBoundingBox',
+        serializer_class=serializers.MostFrequentRequestSerializer
+    )
+    def most_common_request_in_bounding_box(self, request):  # TODO add tests
+        query_params = serializers.DateParamWCoordinates(data=self.request.query_params, context={'request': request})
+        query_params.is_valid(raise_exception=True)
+        data = query_params.validated_data
+
+        #                                       lat
+        # point a: top left                 a ------- *
+        #                                   |         |  long
+        #                                   |         |
+        # point b: bottom right             * ------- b
+        #
+        # Raw SQL query (printed out executing print(queryset.query)") (%s: input values):
+        #
+        # SELECT "incidents"."type_of_service_request",
+        # COUNT("incidents"."type_of_service_request") AS "number_of_requests"
+        # FROM "incidents"
+        # WHERE ("incidents"."creation_date" = %s AND "incidents"."latitude" >= %s
+        # AND "incidents"."latitude" <= %s AND "incidents"."longitude" >= %s
+        # AND "incidents"."longitude" <= %s)
+        # GROUP BY "incidents"."type_of_service_request"
+        # ORDER BY "number_of_requests" DESC
+        # LIMIT 1
+        queryset = Incident.objects.filter(creation_date=data.get('date'),
+                                           latitude__range=[data.get('b_latitude'), data.get('a_latitude')],
+                                           longitude__range=[data.get('a_longitude'), data.get('b_longitude')]) \
+            .values('type_of_service_request') \
+            .annotate(number_of_requests=Count('type_of_service_request')) \
+            .order_by('-number_of_requests')[:1]
+
+        serializer = serializers.MostFrequentRequestSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @utils.swagger_auto_schema(
+        operation_summary='Find the top-5 Special Service Areas (SSA) with regards to total number of requests per '
+                          'day for a specific date range (for service requests types that SSA is available: '
+                          'abandoned vehicles, garbage carts, graffiti removal, pot holes reported)',
+        operation_description='',
+        query_serializer=serializers.DateRangeParams
+    )
+    @action(
+        methods=['get'], detail=False, url_path='top5SSA',
+        serializer_class=serializers.RequestsPerSSASerializer
+    )
+    def top_5_ssa_per_day(self, request):   # TODO add tests
+        query_params = serializers.DateRangeParams(data=self.request.query_params, context={'request': request})
+        query_params.is_valid(raise_exception=True)
+        data = query_params.validated_data
+
+        # Raw SQL query (printed out executing print(queryset.query)") (%s: input values):
+        #
+        # SELECT "incidents"."ssa", COUNT("incidents"."service_request_number") AS "number_of_requests"
+        # FROM "incidents"
+        # WHERE ("incidents"."creation_date" >= %s AND "incidents"."creation_date" <= %s
+        # AND "incidents"."ssa" IS NOT NULL)
+        # GROUP BY "incidents"."ssa"
+        # ORDER BY "number_of_requests" DESC
+        # LIMIT 5
+        queryset = Incident.objects.filter(creation_date__gte=data.get('start_date'),
+                                           creation_date__lte=data.get('end_date'),
+                                           ssa__isnull=False) \
+            .values('ssa') \
+            .annotate(number_of_requests=Count('service_request_number')) \
+            .order_by('-number_of_requests')[:5]
+        serializer = serializers.RequestsPerSSASerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @utils.swagger_auto_schema(
+        operation_summary='Find the license plates (if any) that have been involved in abandoned vehicle complaints '
+                          'more than once.',
+        operation_description='',
+    )
+    @action(
+        methods=['get'], detail=False, url_path='licensePlates',
+        serializer_class=serializers.LicensePlatesSerializer
+    )
+    def license_plates(self, request):  # TODO tests!
+        queryset = []
+        with connection.cursor() as cursor:
+            # Some details about the following...
+            # In order to avoid duplicate requests we can depend on selecting the requests that have status
+            # equal to 'OPEN' and counting distinct addresses
+            # (what is the possibility to have an another incident with the same vehicle at the same address)
+            cursor.execute('SELECT abandoned_vehicles.license_plate, \
+                            COUNT(DISTINCT incidents.street_address) AS number_of_requests \
+                            FROM abandoned_vehicles \
+                            LEFT OUTER JOIN abandoned_vehicles_incidents \
+                            ON (abandoned_vehicles.id = abandoned_vehicles_incidents.abandoned_vehicle_id) \
+                            LEFT OUTER JOIN incidents \
+                            ON (abandoned_vehicles_incidents.incident_id = incidents.id) \
+                            WHERE abandoned_vehicles.license_plate IS NOT NULL \
+                            AND incidents.status = \'OPEN\' \
+                            GROUP BY abandoned_vehicles.license_plate \
+                            HAVING COUNT(DISTINCT incidents.street_address) > 1;')
+            # Flush out the results to list
+            columns = [column[0] for column in cursor.description]
+            for row in cursor.fetchall():
+                queryset.append(dict(zip(columns, row)))
+
+        serializer = serializers.LicensePlatesSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def get_permissions(self) -> typing.List[BasePermission]:

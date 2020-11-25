@@ -26,7 +26,8 @@ class DateAndRequestTypeParams(DateRangeParams):
     """The serializer for date range and request type
     """
     type_of_service_request = serializers.ChoiceField(choices=Incident.SERVICE_TYPE_CHOICES,
-                                                      help_text='The type of service to group by')
+                                                      help_text='The type of service to group by',
+                                                      required=True)
 
 
 class DateParam(BaseSerializer):
@@ -34,6 +35,15 @@ class DateParam(BaseSerializer):
     """
     date = serializers.DateField(required=True, input_formats=DATE_INPUT_FORMATS,
                                  help_text='The date for data to include')
+
+
+class DateParamWCoordinates(DateParam):
+    """The serializer for one date param and a set of coordinates that specify a bounding box
+    """
+    a_latitude = serializers.FloatField(required=True, help_text='The latitude for point a')
+    a_longitude = serializers.FloatField(required=True, help_text='The longitude for point a')
+    b_latitude = serializers.FloatField(required=True, help_text='The latitude for point b')
+    b_longitude = serializers.FloatField(required=True, help_text='The longitude for point b')
 
 
 class TotalRequestsPerTypeSerializer(BaseSerializer):
@@ -50,16 +60,35 @@ class TotalRequestsPerDaySerializer(BaseSerializer):
     number_of_requests = serializers.IntegerField()
 
 
-class MostFrequentRequestPerZipCode(BaseSerializer):
-    """The serializer for the total requests per type
+class MostFrequentRequestSerializer(BaseSerializer):
+    """The serializer for the most frequent request
     """
-    zip_code = serializers.IntegerField()
     type_of_service_request = serializers.CharField()
     number_of_requests = serializers.IntegerField()
 
 
-class AverageCompletionTimePerRequest(BaseSerializer):
+class RequestsPerSSASerializer(BaseSerializer):
+    """The serializer for the most frequent request
+    """
+    ssa = serializers.CharField()
+    number_of_requests = serializers.IntegerField()
+
+
+class MostFrequentRequestPerZipCodeSerializer(MostFrequentRequestSerializer):
+    """The serializer for the most frequent request per zip code
+    """
+    zip_code = serializers.IntegerField()
+
+
+class AverageCompletionTimePerRequestSerializer(BaseSerializer):
     """The serializer for average completion time per request
     """
     type_of_service_request = serializers.CharField()
     average_completion_time = serializers.CharField()
+
+
+class LicensePlatesSerializer(BaseSerializer):
+    """The serializer for license plates
+    """
+    license_plate = serializers.CharField()
+    number_of_requests = serializers.IntegerField()
