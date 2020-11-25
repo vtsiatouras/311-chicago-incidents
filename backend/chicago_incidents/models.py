@@ -79,11 +79,14 @@ class Incident(AutoCreatedUpdatedModel):
                            'type_of_service_request', 'street_address']
                            ]
         # The 1st index is useful for the importers
-        indexes = [models.Index(fields=['creation_date', 'status', 'completion_date', 'service_request_number',
-                                        'type_of_service_request', 'street_address']),
-                   models.Index(fields=['creation_date']),
+        indexes = [models.Index(fields=['creation_date']),
+                   models.Index(fields=['status']),
+                   models.Index(fields=['street_address']),  # maybe is not needed
                    models.Index(fields=['zip_code']),
                    models.Index(fields=['type_of_service_request']),
+                   models.Index(fields=['latitude']),
+                   models.Index(fields=['longitude']),
+                   models.Index(fields=['ssa']),
                    ]
 
     def full_clean(self, exclude=None, validate_unique=True):
@@ -149,8 +152,6 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
         db_table = 'abandoned_vehicles'
         # Constraint to avoid duplication of data
         unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
-        # The 1st index is useful for the importers
-        indexes = [models.Index(fields=['license_plate', 'vehicle_make_model', 'vehicle_color']), ]
 
     def clean(self):
         super().clean()
@@ -181,6 +182,8 @@ class AbandonedVehicleIncident(AutoCreatedUpdatedModel):
         # Constraint to avoid duplication of data
         unique_together = ['abandoned_vehicle', 'incident']
 
+        indexes = [models.Index(fields=['incident']), ]
+
 
 class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
     """Model that contains number of carts for garbage carts incidents and number of potholes for potholes incidents.
@@ -205,7 +208,6 @@ class Graffiti(AutoCreatedUpdatedModel):
         db_table = 'graffiti'  # The plural of graffiti is graffiti :)
         # Constraint to avoid duplication of data
         unique_together = ['surface', 'location']
-        indexes = [models.Index(fields=['surface', 'location']), ]
 
     def clean(self):
         super().clean()
@@ -276,7 +278,6 @@ class SanitationCodeViolation(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'sanitation_code_violations'
-        indexes = [models.Index(fields=['nature_of_code_violation']), ]
 
 
 class SanitationCodeViolationIncident(AutoCreatedUpdatedModel):
