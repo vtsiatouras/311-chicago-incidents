@@ -47,8 +47,17 @@ class DateParamWCoordinates(DateParam):
 
 
 class RodentBaitingParams(BaseSerializer):
-    threshold = serializers.IntegerField(required=True, help_text='The specified number')
+    BAITED = 'BAITED'
+    GARBAGE = 'GARBAGE'
+    RATS = 'RATS'
 
+    TYPE_CHOICES = [
+        (BAITED, 'Premises Baited'),
+        (GARBAGE, 'Premises With Garbage'),
+        (RATS, 'Premises With Rats'),
+    ]
+    threshold = serializers.IntegerField(required=True, help_text='The specified number')
+    type_of_premises = serializers.ChoiceField(choices=TYPE_CHOICES, help_text='The type of the metric to group by')
 
 
 class TotalRequestsPerTypeSerializer(BaseSerializer):

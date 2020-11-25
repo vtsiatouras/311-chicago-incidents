@@ -25,9 +25,9 @@ class IncidentMinifiedSerializer(ModelSerializer):
     """
 
     class Meta:
-        models = models.Incident
-        fields = ['id', 'creation_date', 'completion_date','service_request_number', 'type_of_service_request',
-                  'street_address', 'zip_code', 'latitude', 'longitude']
+        model = models.Incident
+        fields = ['id', 'service_request_number', 'type_of_service_request', 'street_address', 'zip_code',
+                  'latitude', 'longitude']
 
 
 class IncidentCreateSerializer(ModelSerializer):

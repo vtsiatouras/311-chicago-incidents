@@ -9,7 +9,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import BasePermission, IsAuthenticated
 from rest_framework.response import Response
 
-from .. import serializers
+from .. import serializers, pagination
 from ..models import Incident, AbandonedVehicle
 
 
@@ -287,12 +287,45 @@ class QueriesViewSet(viewsets.GenericViewSet):
         operation_summary='Find the rodent baiting requests where the number of premises baited or with garbage or '
                           'with rats (on choice) is less than a specified number.',
         operation_description='',
-        query_serializer=serializers.DateRangeParams
+        query_serializer=serializers.RodentBaitingParams
     )
     @action(
-        methods=['get'], detail=False, url_path='secondMostCommonColor',
-        serializer_class=serializers.VehicleColorSerializer
+        methods=['get'], detail=False, url_path='rodentBaiting',
+        pagination_class=pagination.Pagination,
+        serializer_class=serializers.IncidentMinifiedSerializer
     )
+    def rodent_baiting(self, request):  # TODO tests!
+        query_params = serializers.RodentBaitingParams(data=self.request.query_params, context={'request': request})
+        query_params.is_valid(raise_exception=True)
+        data = query_params.validated_data
+        type_of_premises = data.get('type_of_premises')
+        # Raw SQL (without pagination)
+        #
+        # SELECT "incidents"."id", "incidents"."service_request_number", "incidents"."type_of_service_request",
+        # "incidents"."street_address", "incidents"."zip_code", "incidents"."latitude", "incidents"."longitude"
+        # FROM "incidents"
+        # INNER JOIN "rodent_baiting_premises"
+        # ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
+        # WHERE "rodent_baiting_premises"."number_of_premises_baited" < 2
+
+        queryset = Incident.objects.values('id', 'service_request_number', 'type_of_service_request',
+                                           'street_address', 'zip_code', 'latitude', 'longitude')
+        if type_of_premises == serializers.RodentBaitingParams.BAITED:
+            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_baited__lt=data.get('threshold')) \
+                .order_by('id')
+        elif type_of_premises == serializers.RodentBaitingParams.GARBAGE:
+            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_garbage__lt=data.get('threshold'))\
+                .order_by('id')
+        elif type_of_premises == serializers.RodentBaitingParams.RATS:
+            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_rats__lt=data.get('threshold')) \
+                .order_by('id')
+        else:
+            queryset = []
+
+        # Apply pagination to the query
+        page = self.paginate_queryset(self.filter_queryset(queryset=queryset))
+        serializer = serializers.IncidentMinifiedSerializer(page, many=True)
+        return Response(serializer.data)
 
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
