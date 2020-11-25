@@ -46,6 +46,11 @@ class DateParamWCoordinates(DateParam):
     b_longitude = serializers.FloatField(required=True, help_text='The longitude for point b')
 
 
+class RodentBaitingParams(BaseSerializer):
+    threshold = serializers.IntegerField(required=True, help_text='The specified number')
+
+
+
 class TotalRequestsPerTypeSerializer(BaseSerializer):
     """The serializer for the total requests per type
     """
@@ -92,3 +97,10 @@ class LicensePlatesSerializer(BaseSerializer):
     """
     license_plate = serializers.CharField()
     number_of_requests = serializers.IntegerField()
+
+
+class VehicleColorSerializer(BaseSerializer):
+    """The serializer for vehicle color
+    """
+    vehicle_color = serializers.CharField()
+    color_count = serializers.IntegerField()

@@ -258,6 +258,42 @@ class QueriesViewSet(viewsets.GenericViewSet):
         serializer = serializers.LicensePlatesSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @utils.swagger_auto_schema(
+        operation_summary='Find the second most common color of vehicles involved in abandoned vehicle complaints.',
+        operation_description='',
+    )
+    @action(
+        methods=['get'], detail=False, url_path='secondMostCommonColor',
+        serializer_class=serializers.VehicleColorSerializer
+    )
+    def second_most_common_color(self, request):  # TODO TESTS!
+        # Raw SQL:
+        #
+        # SELECT "abandoned_vehicles"."vehicle_color", COUNT("abandoned_vehicles"."vehicle_color") AS "color_count"
+        # FROM "abandoned_vehicles"
+        # WHERE "abandoned_vehicles"."vehicle_color" IS NOT NULL
+        # GROUP BY "abandoned_vehicles"."vehicle_color"
+        # ORDER BY "color_count" DESC
+        # LIMIT 1 OFFSET 1
+        queryset = AbandonedVehicle.objects.filter(vehicle_color__isnull=False) \
+            .values('vehicle_color') \
+            .annotate(color_count=Count('vehicle_color')) \
+            .order_by('-color_count')[1:2]
+        print(queryset.query)
+        serializer = serializers.VehicleColorSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @utils.swagger_auto_schema(
+        operation_summary='Find the rodent baiting requests where the number of premises baited or with garbage or '
+                          'with rats (on choice) is less than a specified number.',
+        operation_description='',
+        query_serializer=serializers.DateRangeParams
+    )
+    @action(
+        methods=['get'], detail=False, url_path='secondMostCommonColor',
+        serializer_class=serializers.VehicleColorSerializer
+    )
+
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
         """
