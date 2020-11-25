@@ -80,6 +80,7 @@ class Incident(AutoCreatedUpdatedModel):
                            ]
         # The 1st index is useful for the importers
         indexes = [models.Index(fields=['creation_date']),
+                   models.Index(fields=['completion_date']),
                    models.Index(fields=['status']),
                    models.Index(fields=['street_address']),  # maybe is not needed
                    models.Index(fields=['zip_code']),
