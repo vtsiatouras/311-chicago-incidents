@@ -152,6 +152,8 @@ class AbandonedVehicle(AutoCreatedUpdatedModel):
         db_table = 'abandoned_vehicles'
         # Constraint to avoid duplication of data
         unique_together = ['license_plate', 'vehicle_make_model', 'vehicle_color']
+        indexes = [models.Index(fields=['license_plate']),
+                   models.Index(fields=['vehicle_color'])]
 
     def clean(self):
         super().clean()
