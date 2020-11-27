@@ -10,7 +10,6 @@ from . import views
 class OptionalSlashRouter(DefaultRouter):
     """Router to make trailing slashes optional. All URLs work with or without trailing slashes, without redirecting.
     """
-
     def __init__(self):
         super().__init__()
         self.trailing_slash = '/?'
@@ -19,7 +18,7 @@ class OptionalSlashRouter(DefaultRouter):
 router = OptionalSlashRouter()
 router.register('users', views.UserProfileViewSet, basename='user')
 router.register('incidents', views.IncidentViewSet, basename='incident')
-router.register('abandoned_vehicles', views.AbandonedVehicleViewSet, basename='abandoned_vehicle')
+router.register('queries', views.QueriesViewSet, basename='queries')
 
 urlpatterns = [
     re_path(r'^auth/?$', views.TokenObtainPairView.as_view()),
