@@ -32,8 +32,9 @@
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 50.12345,
+      "longitude": 55.12345,
+      "police_district": 1
     }
   },
   {
@@ -51,8 +52,9 @@
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 51.12345,
+      "longitude": 54.12345,
+      "police_district": 1
     }
   },
   {
@@ -70,8 +72,9 @@
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 52.12345,
+      "longitude": 54.12345,
+      "police_district": 1
     }
   },
   {
@@ -85,12 +88,13 @@
       "status": "OPEN",
       "service_request_number": "100-4",
       "type_of_service_request": "ABANDONED_VEHICLE",
-      "street_address" : "address 123",
+      "street_address" : "address 12345",
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 50.12345,
+      "longitude": 54.12345,
+      "police_district": 1
     }
   },
   {
@@ -108,8 +112,9 @@
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 54.12345,
+      "longitude": 51.12345,
+      "police_district": 1
     }
   },
   {
@@ -127,8 +132,9 @@
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 51.12345,
+      "longitude": 52.12345,
+      "police_district": 1
     }
   },
   {
@@ -146,8 +152,9 @@
       "zip_code": 12345,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 53.12345,
+      "longitude": 52.12345,
+      "police_district": 1
     }
   },
   {
@@ -165,8 +172,9 @@
       "zip_code": 67890,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 1
     }
   },
   {
@@ -184,8 +192,9 @@
       "zip_code": 67890,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 1
     }
   },
   {
@@ -203,8 +212,9 @@
       "zip_code": 67890,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
     }
   },
   {
@@ -222,8 +232,9 @@
       "zip_code": 67890,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
     }
   },
   {
@@ -241,8 +252,362 @@
       "zip_code": 24680,
       "x_coordinate": "12.12345",
       "y_coordinate": "12.12345",
-      "latitude": "12.12345",
-      "longitude": "12.12345"
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 13,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-13",
+      "type_of_service_request": "RODENT_BAITING",
+      "street_address" : "address 123",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 14,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-14",
+      "type_of_service_request": "RODENT_BAITING",
+      "street_address" : "address 123",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 1
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 15,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-15",
+      "type_of_service_request": "RODENT_BAITING",
+      "street_address" : "address 123",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 16,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-16",
+      "type_of_service_request": "POT_HOLE",
+      "street_address" : "address 112312323",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 1
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 17,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-16",
+      "type_of_service_request": "POT_HOLE",
+      "street_address" : "address-123",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 1
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 18,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-18",
+      "type_of_service_request": "POT_HOLE",
+      "street_address" : "address 7675",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
+    }
+  },
+  {
+    "model": "chicago_incidents.incident",
+    "pk": 19,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "creation_date": "2020-11-15T00:00:00.000Z",
+      "completion_date": "2020-11-22T00:00:00.000Z",
+      "status": "OPEN",
+      "service_request_number": "100-19",
+      "type_of_service_request": "POT_HOLE",
+      "street_address" : "address978534534",
+      "zip_code": 24680,
+      "x_coordinate": "12.12345",
+      "y_coordinate": "12.12345",
+      "latitude": 12.12345,
+      "longitude": 12.12345,
+      "police_district": 2
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicle",
+    "pk": 1,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "license_plate": "ASDF1234",
+      "vehicle_make_model": "Subaru Impreza",
+      "vehicle_color": "blue"
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicle",
+    "pk": 2,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "license_plate": "ASDF56789",
+      "vehicle_make_model": "Nissan GTR",
+      "vehicle_color": "black"
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicle",
+    "pk": 3,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "license_plate": "ASD134",
+      "vehicle_make_model": "Ford Fiesta",
+      "vehicle_color": "blue"
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicle",
+    "pk": 4,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "license_plate": "ADF34",
+      "vehicle_make_model": "Mazda RX-7",
+      "vehicle_color": "blue"
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicle",
+    "pk": 5,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "license_plate": "1312S24",
+      "vehicle_make_model": "Toyota Supra",
+      "vehicle_color": "black"
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicle",
+    "pk": 6,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "license_plate": "ASDF12",
+      "vehicle_make_model": "Porsche Carrera 911",
+      "vehicle_color": "white"
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 1,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 1,
+      "abandoned_vehicle": 1
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 2,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 4,
+      "abandoned_vehicle": 1
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 3,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 2,
+      "abandoned_vehicle": 2
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 4,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 3,
+      "abandoned_vehicle": 3
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 5,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 7,
+      "abandoned_vehicle": 4
+    }
+  },
+
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 6,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 8,
+      "abandoned_vehicle": 5
+    }
+  },
+  {
+    "model": "chicago_incidents.abandonedvehicleincident",
+    "pk": 7,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "incident": 9,
+      "abandoned_vehicle": 6
+    }
+  },
+  {
+    "model": "chicago_incidents.rodentbaitingpremises",
+    "pk": 1,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_premises_baited": 2,
+      "number_of_premises_w_garbage": 3,
+      "number_of_premises_w_rats": 4,
+      "incident": 13
+    }
+  },
+  {
+    "model": "chicago_incidents.rodentbaitingpremises",
+    "pk": 2,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_premises_baited": 5,
+      "number_of_premises_w_garbage": 6,
+      "number_of_premises_w_rats": 1,
+      "incident": 14
+    }
+  },
+  {
+    "model": "chicago_incidents.rodentbaitingpremises",
+    "pk": 3,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_premises_baited": 1,
+      "number_of_premises_w_garbage": 3,
+      "number_of_premises_w_rats": 4,
+      "incident": 15
+    }
+  },
+  {
+    "model": "chicago_incidents.numberofcartsandpotholes",
+    "pk": 1,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_elements": 10,
+      "incident": 16
+    }
+  },
+  {
+    "model": "chicago_incidents.numberofcartsandpotholes",
+    "pk": 2,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_elements": 5,
+      "incident": 17
+    }
+  },
+  {
+    "model": "chicago_incidents.numberofcartsandpotholes",
+    "pk": 3,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_elements": 2,
+      "incident": 18
+    }
+  },
+  {
+    "model": "chicago_incidents.numberofcartsandpotholes",
+    "pk": 4,
+    "fields": {
+      "created_at": "2020-11-15T00:00:00.000Z",
+      "updated_at": "2020-11-15T00:00:00.000Z",
+      "number_of_elements": 20,
+      "incident": 19
     }
   }
 ]
