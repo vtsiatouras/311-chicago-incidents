@@ -1,8 +1,7 @@
 import typing
 
 from django.db import connection
-from django.db.models import Count, Avg, F, Q, CharField, Sum
-from django.db.models.functions import Concat
+from django.db.models import Count, Avg, F, Q, Sum
 from drf_yasg import utils
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -157,14 +156,14 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='mostCommonServiceInBoundingBox',
         serializer_class=serializers.MostFrequentRequestSerializer
     )
-    def most_common_request_in_bounding_box(self, request):  # TODO add tests
+    def most_common_service_in_bounding_box(self, request):
         query_params = serializers.DateParamWCoordinates(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
 
-        #                                       lat
+        #                                       long
         # point a: top left                 a ------- *
-        #                                   |         |  long
+        #                                   |         |  lat
         #                                   |         |
         # point b: bottom right             * ------- b
         #
@@ -182,9 +181,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         queryset = Incident.objects.filter(creation_date=data.get('date'),
                                            latitude__range=[data.get('b_latitude'), data.get('a_latitude')],
                                            longitude__range=[data.get('a_longitude'), data.get('b_longitude')]) \
-                       .values('type_of_service_request') \
-                       .annotate(number_of_requests=Count('type_of_service_request')) \
-                       .order_by('-number_of_requests')[:1]
+            .values('type_of_service_request') \
+            .annotate(number_of_requests=Count('type_of_service_request')) \
+            .order_by('-number_of_requests')[:1]
 
         serializer = serializers.MostFrequentRequestSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -217,9 +216,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         queryset = Incident.objects.filter(creation_date__gte=data.get('start_date'),
                                            creation_date__lte=data.get('end_date'),
                                            ssa__isnull=False) \
-                       .values('ssa') \
-                       .annotate(number_of_requests=Count('service_request_number')) \
-                       .order_by('-number_of_requests')[:5]
+            .values('ssa') \
+            .annotate(number_of_requests=Count('service_request_number')) \
+            .order_by('-number_of_requests')[:5]
         serializer = serializers.RequestsPerSSASerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -232,7 +231,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='licensePlates',
         serializer_class=serializers.LicensePlatesSerializer
     )
-    def license_plates(self, request):  # TODO tests!
+    def license_plates(self, request):
         queryset = []
         with connection.cursor() as cursor:
             # Some details about the following...
@@ -266,7 +265,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='secondMostCommonColor',
         serializer_class=serializers.VehicleColorSerializer
     )
-    def second_most_common_color(self, request):  # TODO TESTS!
+    def second_most_common_color(self, request):
         # Raw SQL:
         #
         # SELECT "abandoned_vehicles"."vehicle_color", COUNT("abandoned_vehicles"."vehicle_color") AS "color_count"
@@ -276,10 +275,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         # ORDER BY "color_count" DESC
         # LIMIT 1 OFFSET 1
         queryset = AbandonedVehicle.objects.filter(vehicle_color__isnull=False) \
-                       .values('vehicle_color') \
-                       .annotate(color_count=Count('vehicle_color')) \
-                       .order_by('-color_count')[1:2]
-        print(queryset.query)
+            .values('vehicle_color') \
+            .annotate(color_count=Count('vehicle_color')) \
+            .order_by('-color_count')[1:2]
         serializer = serializers.VehicleColorSerializer(queryset, many=True)
         return Response(serializer.data)
 
@@ -294,7 +292,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         pagination_class=pagination.Pagination,
         serializer_class=serializers.IncidentMinifiedSerializer
     )
-    def rodent_baiting(self, request):  # TODO tests!
+    def rodent_baiting(self, request):
         query_params = serializers.RodentBaitingParams(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
@@ -314,7 +312,8 @@ class QueriesViewSet(viewsets.GenericViewSet):
             queryset = queryset.filter(rodent_baiting_premises__number_of_premises_baited__lt=data.get('threshold')) \
                 .order_by('id')
         elif type_of_premises == serializers.RodentBaitingParams.GARBAGE:
-            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_garbage__lt=data.get('threshold')) \
+            queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_garbage__lt=data
+                                       .get('threshold')) \
                 .order_by('id')
         elif type_of_premises == serializers.RodentBaitingParams.RATS:
             queryset = queryset.filter(rodent_baiting_premises__number_of_premises_w_rats__lt=data.get('threshold')) \
@@ -336,9 +335,10 @@ class QueriesViewSet(viewsets.GenericViewSet):
     )
     @action(
         methods=['get'], detail=False, url_path='policeDistrict',
+        pagination_class=pagination.Pagination,
         serializer_class=serializers.PoliceDistrictSerializer
     )
-    def police_districts(self, request):
+    def police_districts(self, request):  # TODO ADD TESTS & SERIALIZER!
         query_params = serializers.PotHolesAndRodentBaitingParams(data=self.request.query_params,
                                                                   context={'request': request})
         query_params.is_valid(raise_exception=True)
@@ -365,9 +365,10 @@ class QueriesViewSet(viewsets.GenericViewSet):
                       potholes_count=Sum('number_of_carts_and_potholes__number_of_elements')) \
             .filter(rodent_baiting_count__gt=data.get('rodent_baiting_threshold'),
                     potholes_count__gt=data.get('potholes_threshold'))
-        print(queryset.query)
-        print(queryset)
-        return Response()
+
+        page = self.paginate_queryset(self.filter_queryset(queryset=queryset))
+        serializer = serializers.PoliceDistrictSerializer(page, many=True)
+        return Response(serializer.data)
 
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
