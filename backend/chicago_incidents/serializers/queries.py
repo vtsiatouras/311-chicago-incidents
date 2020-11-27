@@ -45,6 +45,14 @@ class DateParamWCoordinates(DateParam):
     b_latitude = serializers.FloatField(required=True, help_text='The latitude for point b')
     b_longitude = serializers.FloatField(required=True, help_text='The longitude for point b')
 
+    def validate(self, data):
+        if data['a_latitude'] < data['b_latitude']:
+            raise ValidationError({'a_latitude, b_latitude': 'b_latitude must be less than a_latitude'})
+        if data['a_longitude'] > data['b_longitude']:
+            raise ValidationError({'a_longitude, b_longitude': 'a_longitude must be less than b_longitude'})
+
+        return data
+
 
 class RodentBaitingParams(BaseSerializer):
     """The serializer for querying the rodent baiting incidents
@@ -128,4 +136,6 @@ class PoliceDistrictSerializer(BaseSerializer):
     """The serializer for police districts
     """
     police_district = serializers.IntegerField()
-    date = serializers.DateField()
+    completion_date = serializers.DateTimeField()
+    rodent_baiting_count = serializers.IntegerField()
+    potholes_count = serializers.IntegerField()
