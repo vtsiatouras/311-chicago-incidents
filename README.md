@@ -11,7 +11,7 @@ All the data used for the development can be found [here](https://www.kaggle.com
 
 ## DjangoREST Application
 
-### Installation
+### Installation from source
 
 This section contains the installation instructions in order to set up a local development environment. The instructions
 have been validated for Ubuntu 20.04.
@@ -69,6 +69,7 @@ After you create the database, you can populate it with the initial schema by ru
 
 ```bash
 python manage.py migrate
+python manage.py createcachetable cache_table
 ```
 
 and load the initial data with:
@@ -94,25 +95,41 @@ The API is available at http://127.0.0.1:8000/
 
 ## Vue.js Application
 
-### Project setup
+### Installation from source
+
+First, [Yarn](https://classic.yarnpkg.com/en/docs/install/#debian-stable) should be installed on your machine. The
+ following works for Ubuntu 20.04.
+
+```bash
+curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+sudo apt-get update && sudo apt-get install yarn
 ```
+
+After, install all the dependencies of the application through Yarn package manager.
+
+```bash
 yarn install
 ```
 
 ### Compiles and hot-reloads for development
-```
+```bash
 yarn serve
 ```
 
 ### Compiles and minifies for production
-```
+```bash
 yarn build
 ```
 
 ### Lints and fixes files
-```
+```bash
 yarn lint
 ```
 
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+## Installation using Docker
+
+I have created a single Dockerfile that deploys both applications simultaneously. I recommend this way of installation in order to keep your machine clean from packages that you may not use ever again. 
+ 
+Initially, install [Docker Engine](https://docs.docker.com/engine/install/ubuntu/) (click the link to see instructions).
+
