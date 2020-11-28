@@ -1,0 +1,44 @@
+version: "3.8"
+
+services:
+  db:
+    image: postgres:12.5-alpine
+    container_name: db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=${CHICAGO_INCIDENT_DATABASE_NAME}
+      - POSTGRES_USER=${CHICAGO_INCIDENT_DATABASE_USER}
+      - POSTGRES_PASSWORD=${CHICAGO_INCIDENT_DATABASE_PASSWORD}
+    env_file:
+      - .env
+
+  api:
+    container_name: api
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    command: bash -c "python /code/api/manage.py migrate && python /code/api/manage.py createcachetable &&
+                      python /code/api/manage.py runserver 0.0.0.0:8000"
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    env_file:
+      - .env
+    environment:
+      - CHICAGO_INCIDENT_DATABASE_NAME=${CHICAGO_INCIDENT_DATABASE_NAME}
+      - CHICAGO_INCIDENT_DATABASE_USER=${CHICAGO_INCIDENT_DATABASE_USER}
+      - CHICAGO_INCIDENT_DATABASE_PASSWORD=${CHICAGO_INCIDENT_DATABASE_PASSWORD}
+
+  client:
+    container_name: client
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    command: serve -s dist
+    ports:
+    - "5000:5000"
+
+volumes:
+  postgres_data:
