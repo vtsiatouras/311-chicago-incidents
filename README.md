@@ -46,7 +46,7 @@ All commands from this point forward require the python environment to be enable
 ### Environment variables
 
 The project uses environment variables in order to keep private data like user names and passwords out of source
-control. You can either set them at system level, or by creating a file named `.env` at the project root (`backend/`). 
+control. You can either set them at system level, or by creating a file named `.env` at the root of the repository. 
 The required environment variables for development are:
 
 * `CHICAGO_INCIDENT_DATABASE_USER`: The database user
@@ -131,5 +131,47 @@ yarn lint
 
 I have created a single Dockerfile that deploys both applications simultaneously. I recommend this way of installation in order to keep your machine clean from packages that you may not use ever again. 
  
-Initially, install [Docker Engine](https://docs.docker.com/engine/install/ubuntu/) (click the link to see instructions).
+Initially, install [Docker Engine](https://docs.docker.com/engine/install/ubuntu/) (click the link to see
+ instructions) & [Docker Compose](https://docs.docker.com/compose/install/) in order to build the project.
+ 
+__Set up the `.env` at the root of the repository!__
+* `CHICAGO_INCIDENT_DATABASE_USER`: The database user
+* `CHICAGO_INCIDENT_DATABASE_PASSWORD`: The database user password 
+* `CHICAGO_INCIDENT_DATABASE_HOST`: `db` _The host name must be `db`_
+* `CHICAGO_INCIDENT_DATABASE_NAME`: The database name.
 
+Then just execute the following:
+
+```bash
+docker-compose up --build
+```
+
+And you have the database, the API & the Vue.js client up and running!
+
+In order to perform the import of the data you can log in to the running docker container and perform the process
+ manually. To do that, follow the instructions below.
+
+Run:
+```bash
+docker ps
+```
+
+You will have in the output a table of all running docker containers of the project. Copy the `Containter ID` of the
+image `311-chicago-incidents_api`.
+
+After that log in to the container:
+```bash
+docker exec -t -i <CONTAINER_ID> bash
+```
+
+Now you have access to all the files of the API. __You can now run the import command as mentioned above in the Local
+Development section.__
+
+Also, it is recommended to create a superuser in order to have access to the `admin` the `swagger-documentation` pages.
+
+Run
+```bash
+python manage.py createsuperuser
+``` 
+
+## Database Report
