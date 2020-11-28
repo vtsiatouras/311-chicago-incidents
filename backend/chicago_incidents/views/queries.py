@@ -161,9 +161,9 @@ class QueriesViewSet(viewsets.GenericViewSet):
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
 
-        #                                       long
+        #                               long (varies East-West)
         # point a: top left                 a ------- *
-        #                                   |         |  lat
+        #                                   |         |  lat (varies North-South)
         #                                   |         |
         # point b: bottom right             * ------- b
         #
@@ -199,7 +199,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         methods=['get'], detail=False, url_path='top5SSA',
         serializer_class=serializers.RequestsPerSSASerializer
     )
-    def top_5_ssa_per_day(self, request):  # TODO add tests
+    def top_5_ssa_per_day(self, request):
         query_params = serializers.DateRangeParams(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
@@ -338,7 +338,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         pagination_class=pagination.Pagination,
         serializer_class=serializers.PoliceDistrictSerializer
     )
-    def police_districts(self, request):  # TODO ADD TESTS & SERIALIZER!
+    def police_districts(self, request):
         query_params = serializers.PotHolesAndRodentBaitingParams(data=self.request.query_params,
                                                                   context={'request': request})
         query_params.is_valid(raise_exception=True)

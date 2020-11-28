@@ -366,6 +366,63 @@ class QueriesTests(BaseAPITestCase):
                                          'b_latitude': 50.0, 'b_longitude': 60.0})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
+    def test_top_5_ssa_per_day(self):
+        """Test that this endpoint gives the expected data we want
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01', 'end_date': '2020-12-01'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 5)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-09-01', 'end_date': '2020-10-01'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_top_5_ssa_per_day_start_date_greater_than_end_date(self):
+        """Test that date validation works as it should
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'end_date': '2020-08-01', 'start_date': '2020-12-01'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_top_5_ssa_per_day_malformed_dates(self):
+        """Test that date validation works as it should
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01asd', 'end_date': '2020-12-01'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01', 'end_date': '2020-12-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01asd', 'end_date': '2020-12-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_top_5_ssa_per_day_missing_dates(self):
+        """Test that date validation works as it should
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'end_date': '2020-12-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'), data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_license_plates(self):
         """Test that this endpoint gives the expected data we want
         """
