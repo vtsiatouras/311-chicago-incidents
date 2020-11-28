@@ -163,11 +163,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 # Django caching methods
 # https://docs.djangoproject.com/en/3.1/topics/cache/
-# TODO use a proper caching system
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/var/tmp/django_cache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
     }
 }
 
