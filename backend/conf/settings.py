@@ -18,7 +18,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-dotenv.load_dotenv(os.path.join(BASE_DIR, '.env'))
+dotenv.load_dotenv(os.path.join(BASE_DIR, '../.env'))
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
@@ -119,7 +119,7 @@ WSGI_APPLICATION = 'conf.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'HOST': os.getenv('CHICAGO_INCIDENT_DATABASE_HOST', 'localhost'),
+        'HOST': os.getenv('CHICAGO_INCIDENT_DATABASE_HOST', 'localhost'),   # set this to 'db' at .env when using docker
         'NAME': os.getenv('CHICAGO_INCIDENT_DATABASE_NAME', 'chicago_incident_development_db'),
         'USER': os.environ['CHICAGO_INCIDENT_DATABASE_USER'],
         'PASSWORD': os.environ['CHICAGO_INCIDENT_DATABASE_PASSWORD'],
@@ -163,11 +163,11 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 # Django caching methods
 # https://docs.djangoproject.com/en/3.1/topics/cache/
-# TODO use a proper caching system
+
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': '/var/tmp/django_cache',
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'cache_table',
     }
 }
 

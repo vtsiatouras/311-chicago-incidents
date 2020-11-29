@@ -286,7 +286,7 @@ class QueriesTests(BaseAPITestCase):
                                          'b_latitude': 50.0, 'b_longitude': 60.0})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_most_common_service_in_bounding_box_missing_dates(self):
+    def test_most_common_service_in_bounding_box_missing_date(self):
         """Test that date validation works as it should
         """
         self.authenticate('admin')
@@ -364,6 +364,63 @@ class QueriesTests(BaseAPITestCase):
         response = self.client.get(reverse('queries-most-common-service-in-bounding-box'),
                                    data={'date': '2020-08-01', 'a_latitude': 60.0, 'a_longitude': 70.0,
                                          'b_latitude': 50.0, 'b_longitude': 60.0})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_top_5_ssa_per_day(self):
+        """Test that this endpoint gives the expected data we want
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01', 'end_date': '2020-12-01'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 5)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-09-01', 'end_date': '2020-10-01'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_top_5_ssa_per_day_start_date_greater_than_end_date(self):
+        """Test that date validation works as it should
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'end_date': '2020-08-01', 'start_date': '2020-12-01'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_top_5_ssa_per_day_malformed_dates(self):
+        """Test that date validation works as it should
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01asd', 'end_date': '2020-12-01'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01', 'end_date': '2020-12-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01asd', 'end_date': '2020-12-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_top_5_ssa_per_day_missing_dates(self):
+        """Test that date validation works as it should
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'start_date': '2020-08-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'),
+                                   data={'end_date': '2020-12-01asd'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-top-5-ssa-per-day'), data={})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_license_plates(self):
@@ -449,49 +506,69 @@ class QueriesTests(BaseAPITestCase):
         """
         self.authenticate('admin')
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9,
-                                                                              'rodent_baiting_threshold': 3})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 2,
-                                                                              'rodent_baiting_threshold': 2})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': '2020-11-22'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 99,
-                                                                              'rodent_baiting_threshold': 99})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': '2019-08-01'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_police_districts_malformed_potholes_threshold(self):
-        """Test that threshold validation works
+    def test_police_districts_malformed_date(self):
+        """Test that date validation works as it should
         """
         self.authenticate('admin')
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 'asd9',
-                                                                              'rodent_baiting_threshold': 3})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': '2020-08-01asd'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': '',
-                                                                              'rodent_baiting_threshold': 3})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response = self.client.get(reverse('queries-police-districts'), data={'rodent_baiting_threshold': 3})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_police_districts_malformed_rodent_baiting_threshold(self):
-        """Test that threshold validation works
+    def test_police_districts_missing_date(self):
+        """Test that date validation works as it should
         """
         self.authenticate('admin')
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9,
-                                                                              'rodent_baiting_threshold': 'asd3'})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': ''})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9,
-                                                                              'rodent_baiting_threshold': ''})
+        response = self.client.get(reverse('queries-police-districts'), data={})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9})
+    def test_search_incident_by_address_and_zip_code(self):
+        """Test that this endpoint gives the expected data we want
+        """
+        self.authenticate('admin')
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'address': 'address 123'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 14)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'zipcode': '24680'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 8)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'address': 'address 12345', 'zipcode': '12345'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_search_incident_by_address_and_zip_code_malformed_params(self):
+        """Test that this endpoint gives the expected data we want
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'address': '', 'zipcode': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={'address': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={'zipcode': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={'zipcode': 'text'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

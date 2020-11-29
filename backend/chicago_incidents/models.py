@@ -197,6 +197,7 @@ class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'number_of_carts_and_potholes'
+        verbose_name_plural = 'number of carts and potholes'
         # Constraint to avoid duplication of data
         unique_together = ['number_of_elements', 'incident']
 
@@ -209,6 +210,7 @@ class Graffiti(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'graffiti'  # The plural of graffiti is graffiti :)
+        verbose_name_plural = 'graffiti'
         # Constraint to avoid duplication of data
         unique_together = ['surface', 'location']
 
@@ -263,6 +265,7 @@ class RodentBaitingPremises(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'rodent_baiting_premises'
+        verbose_name_plural = 'rodent baiting premises'
         # Constraint to avoid duplication of data
         unique_together = ['number_of_premises_baited', 'number_of_premises_w_garbage', 'number_of_premises_w_rats',
                            'incident']
@@ -285,6 +288,7 @@ class SanitationCodeViolation(AutoCreatedUpdatedModel):
 
     class Meta:
         db_table = 'sanitation_code_violations'
+        verbose_name_plural = 'sanitation code violations'
 
 
 class SanitationCodeViolationIncident(AutoCreatedUpdatedModel):
