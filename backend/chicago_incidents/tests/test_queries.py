@@ -532,3 +532,43 @@ class QueriesTests(BaseAPITestCase):
 
         response = self.client.get(reverse('queries-police-districts'), data={})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_search_incident_by_address_and_zip_code(self):
+        """Test that this endpoint gives the expected data we want
+        """
+        self.authenticate('admin')
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'address': 'address 123'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 14)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'zipcode': '24680'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 8)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'address': 'address 12345', 'zipcode': '12345'})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+
+    def test_search_incident_by_address_and_zip_code_malformed_params(self):
+        """Test that this endpoint gives the expected data we want
+        """
+        self.authenticate('admin')
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'),
+                                   data={'address': '', 'zipcode': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={'address': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={'zipcode': ''})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+        response = self.client.get(reverse('queries-search-incident-by-address-and-zip-code'), data={'zipcode': 'text'})
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
