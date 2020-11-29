@@ -286,7 +286,7 @@ class QueriesTests(BaseAPITestCase):
                                          'b_latitude': 50.0, 'b_longitude': 60.0})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-    def test_most_common_service_in_bounding_box_missing_dates(self):
+    def test_most_common_service_in_bounding_box_missing_date(self):
         """Test that date validation works as it should
         """
         self.authenticate('admin')
@@ -506,49 +506,29 @@ class QueriesTests(BaseAPITestCase):
         """
         self.authenticate('admin')
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9,
-                                                                              'rodent_baiting_threshold': 3})
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
-
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 2,
-                                                                              'rodent_baiting_threshold': 2})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': '2020-11-22'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 99,
-                                                                              'rodent_baiting_threshold': 99})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': '2019-08-01'})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(len(response.data), 0)
 
-    def test_police_districts_malformed_potholes_threshold(self):
-        """Test that threshold validation works
+    def test_police_districts_malformed_date(self):
+        """Test that date validation works as it should
         """
         self.authenticate('admin')
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 'asd9',
-                                                                              'rodent_baiting_threshold': 3})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': '2020-08-01asd'})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': '',
-                                                                              'rodent_baiting_threshold': 3})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response = self.client.get(reverse('queries-police-districts'), data={'rodent_baiting_threshold': 3})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-    def test_police_districts_malformed_rodent_baiting_threshold(self):
-        """Test that threshold validation works
+    def test_police_districts_missing_date(self):
+        """Test that date validation works as it should
         """
         self.authenticate('admin')
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9,
-                                                                              'rodent_baiting_threshold': 'asd3'})
+        response = self.client.get(reverse('queries-police-districts'), data={'date': ''})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9,
-                                                                              'rodent_baiting_threshold': ''})
-        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
-
-        response = self.client.get(reverse('queries-police-districts'), data={'potholes_threshold': 9})
+        response = self.client.get(reverse('queries-police-districts'), data={})
         self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)

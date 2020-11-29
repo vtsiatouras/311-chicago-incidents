@@ -331,7 +331,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
                           'of potholes on the same day that they also handled “rodent baiting” requests with more than '
                           'one number of premises baited, for a specific day.',
         operation_description='',
-        query_serializer=serializers.PotHolesAndRodentBaitingParams
+        query_serializer=serializers.DateParam
     )
     @action(
         methods=['get'], detail=False, url_path='policeDistrict',
@@ -339,35 +339,37 @@ class QueriesViewSet(viewsets.GenericViewSet):
         serializer_class=serializers.PoliceDistrictSerializer
     )
     def police_districts(self, request):
-        query_params = serializers.PotHolesAndRodentBaitingParams(data=self.request.query_params,
-                                                                  context={'request': request})
+        query_params = serializers.DateParam(data=self.request.query_params, context={'request': request})
         query_params.is_valid(raise_exception=True)
         data = query_params.validated_data
 
         # Raw SQL
         #
-        # SELECT "incidents"."police_district", "incidents"."completion_date",
-        # SUM("rodent_baiting_premises"."number_of_premises_baited") AS "rodent_baiting_count",
-        # SUM("number_of_carts_and_potholes"."number_of_elements") AS "potholes_count"
+        # SELECT "incidents"."police_district",
+        # SUM("rodent_baiting_premises"."number_of_premises_baited") AS "rodent_baiting_sum",
+        # SUM("number_of_carts_and_potholes"."number_of_elements") AS "potholes_sum"
         # FROM "incidents"
-        # LEFT OUTER JOIN "rodent_baiting_premises" ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
+        # LEFT OUTER JOIN "rodent_baiting_premises"
+        # ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
         # LEFT OUTER JOIN "number_of_carts_and_potholes"
         # ON ("incidents"."id" = "number_of_carts_and_potholes"."incident_id")
-        # WHERE ("incidents"."type_of_service_request" = 'RODENT_BAITING'
-        # OR "incidents"."type_of_service_request" = 'POT_HOLE')
-        # GROUP BY "incidents"."police_district", "incidents"."completion_date"
-        # HAVING (SUM("number_of_carts_and_potholes"."number_of_elements") > %s
-        # AND SUM("rodent_baiting_premises"."number_of_premises_baited") > %s)
-        queryset = Incident.objects.filter(Q(type_of_service_request=Incident.RODENT_BAITING) | Q(
-            type_of_service_request=Incident.POT_HOLE)) \
-            .values('police_district', 'completion_date') \
-            .annotate(rodent_baiting_count=Sum('rodent_baiting_premises__number_of_premises_baited'),
-                      potholes_count=Sum('number_of_carts_and_potholes__number_of_elements')) \
-            .filter(rodent_baiting_count__gt=data.get('rodent_baiting_threshold'),
-                    potholes_count__gt=data.get('potholes_threshold'))
-
-        page = self.paginate_queryset(self.filter_queryset(queryset=queryset))
-        serializer = serializers.PoliceDistrictSerializer(page, many=True)
+        # WHERE ("incidents"."completion_date" = %s
+        # AND
+        # ("incidents"."type_of_service_request" = RODENT_BAITING OR
+        # "incidents"."type_of_service_request" = POT_HOLE))
+        # GROUP BY "incidents"."police_district"
+        # HAVING
+        # (SUM("number_of_carts_and_potholes"."number_of_elements") > 1
+        # AND SUM("rodent_baiting_premises"."number_of_premises_baited") > 1)
+        # ORDER BY "incidents"."police_district" ASC
+        queryset = Incident.objects.filter(Q(completion_date=data.get('date')) & (
+                Q(type_of_service_request=Incident.RODENT_BAITING) | Q(type_of_service_request=Incident.POT_HOLE))) \
+            .values('police_district') \
+            .annotate(rodent_baiting_sum=Sum('rodent_baiting_premises__number_of_premises_baited'),
+                      potholes_sum=Sum('number_of_carts_and_potholes__number_of_elements')) \
+            .filter(rodent_baiting_sum__gt=1, potholes_sum__gt=1) \
+            .order_by('police_district')
+        serializer = serializers.PoliceDistrictSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def get_permissions(self) -> typing.List[BasePermission]:

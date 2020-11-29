@@ -70,11 +70,11 @@ class RodentBaitingParams(BaseSerializer):
     type_of_premises = serializers.ChoiceField(choices=TYPE_CHOICES, help_text='The type of the metric to group by')
 
 
-class PotHolesAndRodentBaitingParams(BaseSerializer):
-    """The serializer for querying police districts given thresholds about potholes and rodent baiting incidents
-    """
-    potholes_threshold = serializers.IntegerField(required=True, help_text='The specified number')
-    rodent_baiting_threshold = serializers.IntegerField(required=True, help_text='The specified number')
+# class PotHolesAndRodentBaitingParams(BaseSerializer):
+#     """The serializer for querying police districts given thresholds about potholes and rodent baiting incidents
+#     """
+#     potholes_threshold = serializers.IntegerField(required=True, help_text='The specified number')
+#     rodent_baiting_threshold = serializers.IntegerField(required=True, help_text='The specified number')
 
 
 class TotalRequestsPerTypeSerializer(BaseSerializer):
@@ -136,6 +136,5 @@ class PoliceDistrictSerializer(BaseSerializer):
     """The serializer for police districts
     """
     police_district = serializers.IntegerField()
-    completion_date = serializers.DateTimeField()
-    rodent_baiting_count = serializers.IntegerField()
-    potholes_count = serializers.IntegerField()
+    rodent_baiting_sum = serializers.IntegerField()
+    potholes_sum = serializers.IntegerField()
