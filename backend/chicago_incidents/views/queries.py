@@ -372,6 +372,34 @@ class QueriesViewSet(viewsets.GenericViewSet):
         serializer = serializers.PoliceDistrictSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @utils.swagger_auto_schema(
+        operation_summary='Find the incidents that happened in address and the zip code given',
+        operation_description='',
+        query_serializer=serializers.SearchByAddressZipcodeParams
+    )
+    @action(
+        methods=['get'], detail=False, url_path='searchByAddressZipcode',
+        pagination_class=pagination.Pagination,
+        serializer_class=serializers.IncidentMinifiedSerializer
+    )
+    def search_incident_by_address_and_zip_code(self, request):
+        query_params = serializers.SearchByAddressZipcodeParams(data=self.request.query_params,
+                                                                context={'request': request})
+        query_params.is_valid(raise_exception=True)
+        data = query_params.validated_data
+
+        queryset = Incident.objects.values('id', 'service_request_number', 'type_of_service_request',
+                                           'street_address', 'zip_code', 'latitude', 'longitude')
+        if data.get('address'):
+            queryset = queryset.filter(street_address=data.get('address'))
+        if data.get('zipcode'):
+            queryset = queryset.filter(zip_code=data.get('zipcode'))
+
+        # Apply pagination to the query
+        page = self.paginate_queryset(self.filter_queryset(queryset=queryset))
+        serializer = serializers.IncidentMinifiedSerializer(page, many=True)
+        return Response(serializer.data)
+
     def get_permissions(self) -> typing.List[BasePermission]:
         """Instantiates and returns the list of permissions that this view requires.
         """

@@ -70,11 +70,16 @@ class RodentBaitingParams(BaseSerializer):
     type_of_premises = serializers.ChoiceField(choices=TYPE_CHOICES, help_text='The type of the metric to group by')
 
 
-# class PotHolesAndRodentBaitingParams(BaseSerializer):
-#     """The serializer for querying police districts given thresholds about potholes and rodent baiting incidents
-#     """
-#     potholes_threshold = serializers.IntegerField(required=True, help_text='The specified number')
-#     rodent_baiting_threshold = serializers.IntegerField(required=True, help_text='The specified number')
+class SearchByAddressZipcodeParams(BaseSerializer):
+    """The params serializer for querying incidents by address and zipcode
+    """
+    address = serializers.CharField(help_text='The address', required=False)
+    zipcode = serializers.IntegerField(help_text='The zipcode', required=False)
+
+    def validate(self, data):
+        if not data:
+            raise ValidationError({'address, zipcode': 'You must enter at least an address or a zipcode'})
+        return data
 
 
 class TotalRequestsPerTypeSerializer(BaseSerializer):
