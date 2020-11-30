@@ -102,6 +102,11 @@ class QueriesService {
             .get(API_URL + 'queries/licensePlates/', {headers: authHeader()});
     }
 
+    secondMostCommonColor() {
+        return axios
+            .get(API_URL + 'queries/secondMostCommonColor/', {headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();

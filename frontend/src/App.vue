@@ -71,6 +71,11 @@
                 7. License plates
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/second-most-common-color" class="dropdown-item">
+                8. Second most common vehicle color
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>

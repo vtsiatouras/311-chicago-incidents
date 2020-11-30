@@ -79,6 +79,12 @@ export const router = new Router({
             name: 'license-plates',
             // lazy-loaded
             component: () => import('./components/queries/LicensePlates')
+        },
+        {
+            path: '/second-most-common-color',
+            name: 'second-most-common-color',
+            // lazy-loaded
+            component: () => import('./components/queries/SecondMostCommonColor')
         }
     ]
 });
