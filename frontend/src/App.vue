@@ -41,6 +41,11 @@
                 1. Total requests per type
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/total-requests-per-day" class="dropdown-item">
+                2. Total requests per day
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>

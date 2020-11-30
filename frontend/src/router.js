@@ -43,6 +43,12 @@ export const router = new Router({
             name: 'total-requests-per-type',
             // lazy-loaded
             component: () => import('./components/queries/TotalRequestsPerType')
+        },
+        {
+            path: '/total-requests-per-day',
+            name: 'total-requests-per-day',
+            // lazy-loaded
+            component: () => import('./components/queries/TotalRequestsPerDay')
         }
     ]
 });

@@ -30,6 +30,21 @@ class QueriesService {
             .get(API_URL + 'queries/totalRequestsPerType/', {params: params, headers: authHeader()});
     }
 
+    totalRequestsPerDay(startDate, endDate, typeOfServiceRequest) {
+        const startDateData = this._prepareDate(startDate);
+        const endDateData = this._prepareDate(endDate);
+        const params = new URLSearchParams();
+        if (startDateData) {
+            params.append('start_date', startDateData);
+        }
+        if (endDateData) {
+            params.append('end_date', endDateData);
+        }
+        params.append('type_of_service_request', typeOfServiceRequest);
+        return axios
+            .get(API_URL + 'queries/totalRequestsPerDay/', {params: params, headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();
