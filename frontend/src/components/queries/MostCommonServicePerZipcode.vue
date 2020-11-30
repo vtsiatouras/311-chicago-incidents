@@ -82,7 +82,6 @@ export default {
       submitted: false,
       successful: false,
       message: '',
-      service_requests: '',
       tableColumns: [
         {
           title: 'Zipcode',
