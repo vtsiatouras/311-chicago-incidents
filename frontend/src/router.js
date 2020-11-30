@@ -55,6 +55,12 @@ export const router = new Router({
             name: 'most-common-service-per-zipcode',
             // lazy-loaded
             component: () => import('./components/queries/MostCommonServicePerZipcode')
+        },
+        {
+            path: '/average-completion-time-per-request',
+            name: 'average-completion-time-per-request',
+            // lazy-loaded
+            component: () => import('./components/queries/AverageCompletionTimePerRequest')
         }
     ]
 });

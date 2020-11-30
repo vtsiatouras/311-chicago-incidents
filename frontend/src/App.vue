@@ -51,6 +51,11 @@
                 3. Most common service per zipcode
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/average-completion-time-per-request" class="dropdown-item">
+                4. Average completion time per request
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>
