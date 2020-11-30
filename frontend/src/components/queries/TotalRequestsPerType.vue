@@ -10,7 +10,7 @@
     </header>
     <form name="form" @submit.prevent="handleSubmit">
       <div class="form-group">
-        <label for="startDate">Start Date</label>
+        <label for="start_date">Start Date</label>
         <b-input-group class="mb-3">
           <b-form-input
               id="example-input"
@@ -31,12 +31,12 @@
           </b-input-group-append>
         </b-input-group>
         <div
-            v-if="submitted && errors.has('startDate')"
+            v-if="submitted && errors.has('start_date')"
             class="alert-danger"
         >
           {{ errors.first("start_date") }}
         </div>
-        <label for="endDate">End Date</label>
+        <label for="end_date">End Date</label>
         <b-input-group class="mb-3">
           <b-form-input
               id="example-input"
@@ -57,13 +57,19 @@
           </b-input-group-append>
         </b-input-group>
         <div
-            v-if="submitted && errors.has('endDate')"
+            v-if="submitted && errors.has('end_date')"
             class="alert-danger"
         >
-          {{ errors.first("endDate") }}
+          {{ errors.first("end_date") }}
         </div>
         <div class="form-group">
-          <button class="btn btn-primary">Submit</button>
+          <button class="btn btn-primary center-block" :disabled="loading">
+            <span
+                v-show="loading"
+                class="spinner-border spinner-border-sm"
+            ></span>
+            <span>Submit</span>
+          </button>
         </div>
       </div>
       <div class="form-group">
@@ -99,6 +105,7 @@ export default {
     return {
       startDate: '',
       endDate: '',
+      loading: false,
       submitted: false,
       successful: false,
       message: '',
@@ -118,17 +125,19 @@ export default {
     handleSubmit() {
       this.message = '';
       this.submitted = true;
+      this.loading = true;
       this.$validator.validate().then((isValid) => {
         if (isValid) {
           QueriesService.totalRequestsPerType(this.startDate, this.endDate).then(
               (response) => {
                 this.successful = true;
                 this.message = response.data;
-                // this.message = response.status;
+                this.loading = false;
               },
               (error) => {
                 console.log(error.message)
                 this.message = error.response.data;
+                this.loading = false;
               }
           );
         }
