@@ -11,6 +11,36 @@
         </li>
       </div>
 
+      <div v-if="currentUser" class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <router-link to="/create-incident" class="nav-link">
+            <font-awesome-icon icon="plus-square" />
+            Create an Incident
+          </router-link>
+        </li>
+      </div>
+
+      <div v-if="currentUser" class="navbar-nav mr-auto">
+        <li class="nav-item">
+          <router-link to="" class="nav-link">
+            <font-awesome-icon icon="search" />
+            Search Incidents
+          </router-link>
+        </li>
+      </div>
+
+      <div v-if="currentUser" class="navbar-nav mr-auto">
+        <li class="nav-item" >
+          <b-nav-item-dropdown id="dropdown dropdown-head-button" variant="dark">
+            <template slot="button-content">
+              <font-awesome-icon icon="database" />
+              Queries
+            </template>
+            <b-dropdown-item>1. Total requests per type</b-dropdown-item>
+          </b-nav-item-dropdown>
+        </li>
+      </div>
+
       <div v-if="!currentUser" class="navbar-nav ml-auto">
         <li class="nav-item">
           <router-link to="/register" class="nav-link">
