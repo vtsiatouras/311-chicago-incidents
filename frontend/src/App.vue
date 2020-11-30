@@ -66,6 +66,11 @@
                 6. Top 5 SSA
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/license-plates" class="dropdown-item">
+                7. License plates
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>

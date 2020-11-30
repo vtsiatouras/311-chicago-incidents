@@ -73,6 +73,12 @@ export const router = new Router({
             name: 'top-5-ssa',
             // lazy-loaded
             component: () => import('./components/queries/Top5SSA')
+        },
+        {
+            path: '/license-plates',
+            name: 'license-plates',
+            // lazy-loaded
+            component: () => import('./components/queries/LicensePlates')
         }
     ]
 });

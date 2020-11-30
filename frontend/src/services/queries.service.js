@@ -97,6 +97,11 @@ class QueriesService {
             .get(API_URL + 'queries/top5SSA/', {params: params, headers: authHeader()});
     }
 
+    licensePlates() {
+        return axios
+            .get(API_URL + 'queries/licensePlates/', {headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();
