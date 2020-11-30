@@ -335,7 +335,6 @@ class QueriesViewSet(viewsets.GenericViewSet):
     )
     @action(
         methods=['get'], detail=False, url_path='policeDistrict',
-        pagination_class=pagination.Pagination,
         serializer_class=serializers.PoliceDistrictSerializer
     )
     def police_districts(self, request):
@@ -379,7 +378,6 @@ class QueriesViewSet(viewsets.GenericViewSet):
     )
     @action(
         methods=['get'], detail=False, url_path='searchByAddressZipcode',
-        pagination_class=pagination.Pagination,
         serializer_class=serializers.IncidentMinifiedSerializer
     )
     def search_incident_by_address_and_zip_code(self, request):
@@ -396,8 +394,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
             queryset = queryset.filter(zip_code=data.get('zipcode'))
 
         # Apply pagination to the query
-        page = self.paginate_queryset(self.filter_queryset(queryset=queryset))
-        serializer = serializers.IncidentMinifiedSerializer(page, many=True)
+        serializer = serializers.IncidentMinifiedSerializer(queryset, many=True)
         return Response(serializer.data)
 
     def get_permissions(self) -> typing.List[BasePermission]:
