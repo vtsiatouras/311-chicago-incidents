@@ -83,6 +83,20 @@ class QueriesService {
             .get(API_URL + 'queries/mostCommonServiceInBoundingBox/', {params: params, headers: authHeader()});
     }
 
+    top5SSA(startDate, endDate) {
+        const startDateData = this._prepareDate(startDate);
+        const endDateData = this._prepareDate(endDate);
+        const params = new URLSearchParams();
+        if (startDateData) {
+            params.append('start_date', startDateData);
+        }
+        if (endDateData) {
+            params.append('end_date', endDateData);
+        }
+        return axios
+            .get(API_URL + 'queries/top5SSA/', {params: params, headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();

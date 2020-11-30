@@ -67,6 +67,12 @@ export const router = new Router({
             name: 'most-common-service-in-bounding-box',
             // lazy-loaded
             component: () => import('./components/queries/MostCommonServiceInBoundingBox')
+        },
+        {
+            path: '/top-5-ssa',
+            name: 'top-5-ssa',
+            // lazy-loaded
+            component: () => import('./components/queries/Top5SSA')
         }
     ]
 });

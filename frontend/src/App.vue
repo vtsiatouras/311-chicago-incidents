@@ -61,6 +61,11 @@
                 5. Most common service in bounding box
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/top-5-ssa" class="dropdown-item">
+                6. Top 5 SSA
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>
