@@ -49,6 +49,12 @@ export const router = new Router({
             name: 'total-requests-per-day',
             // lazy-loaded
             component: () => import('./components/queries/TotalRequestsPerDay')
+        },
+        {
+            path: '/most-common-service-per-zipcode',
+            name: 'most-common-service-per-zipcode',
+            // lazy-loaded
+            component: () => import('./components/queries/MostCommonServicePerZipcode')
         }
     ]
 });

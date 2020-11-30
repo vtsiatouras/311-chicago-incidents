@@ -45,6 +45,16 @@ class QueriesService {
             .get(API_URL + 'queries/totalRequestsPerDay/', {params: params, headers: authHeader()});
     }
 
+    mostCommonServicePerZipcode(date) {
+        const dateData = this._prepareDate(date);
+        const params = new URLSearchParams();
+        if (dateData) {
+            params.append('date', dateData);
+        }
+        return axios
+            .get(API_URL + 'queries/mostCommonServicePerZipcode/', {params: params, headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();

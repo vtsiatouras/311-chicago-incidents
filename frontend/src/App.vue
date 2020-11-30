@@ -46,6 +46,11 @@
                 2. Total requests per day
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/most-common-service-per-zipcode" class="dropdown-item">
+                3. Most common service per zipcode
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>
