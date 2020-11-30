@@ -91,6 +91,11 @@
                 11. Rodent baiting - premises with rats
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/police-districts" class="dropdown-item">
+                12. Police districts
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>

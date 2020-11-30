@@ -115,6 +115,16 @@ class QueriesService {
         return axios
             .get(API_URL + 'queries/rodentBaiting/', {params: params, headers: authHeader()});
     }
+
+    policeDistricts(date) {
+        const dateData = this._prepareDate(date);
+        const params = new URLSearchParams();
+        if (dateData) {
+            params.append('date', dateData);
+        }
+        return axios
+            .get(API_URL + 'queries/policeDistrict/', {params: params, headers: authHeader()});
+    }
 }
 
 export default new QueriesService();

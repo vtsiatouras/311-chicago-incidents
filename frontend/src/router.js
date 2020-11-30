@@ -104,6 +104,12 @@ export const router = new Router({
             // lazy-loaded
             component: () => import('./components/queries/RodentBaiting'),
         },
+        {
+            path: '/police-districts',
+            name: 'police-districts',
+            // lazy-loaded
+            component: () => import('./components/queries/PoliceDistricts'),
+        }
     ]
 });
 
