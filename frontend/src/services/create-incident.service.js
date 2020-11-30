@@ -11,8 +11,9 @@ class CreateIncidentService {
         if (incident.creation_date) {
             cr_date = new Date(incident.creation_date);
             cr_date = cr_date.toISOString();
-        } else
+        } else {
             cr_date = null;
+        }
         if (incident.completion_date) {
             cm_date = new Date(incident.completion_date);
             cm_date = cm_date.toISOString();
@@ -129,7 +130,7 @@ class CreateIncidentService {
             .post(API_URL + 'incidents/', data, { headers: authHeader() })
     }
 
-    abandonedVehicleIncident(incident, activity, vehicle, days_of_report_as_parked) {
+    abandonedVehicleIncident(incident, activity, vehicle, daysOfReportAsParked) {
         const incidentData = this._prepareIncidentData(incident);
         const activityData = this._prepareIncidentActivityData(activity);
         const vehicleData = this._prepareAbandonedVehicleData(vehicle);
@@ -141,7 +142,7 @@ class CreateIncidentService {
         if (vehicleData) {
             data['abandoned_vehicle'] = vehicleData;
         }
-        data['days_of_report_as_parked'] = parseInt(days_of_report_as_parked)
+        data['days_of_report_as_parked'] = parseInt(daysOfReportAsParked)
         return axios
             .post(API_URL + 'incidents/createAbandonedVehicleIncidents/', data, { headers: authHeader() })
     }
