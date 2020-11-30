@@ -61,6 +61,12 @@ export const router = new Router({
             name: 'average-completion-time-per-request',
             // lazy-loaded
             component: () => import('./components/queries/AverageCompletionTimePerRequest')
+        },
+        {
+            path: '/most-common-service-in-bounding-box',
+            name: 'most-common-service-in-bounding-box',
+            // lazy-loaded
+            component: () => import('./components/queries/MostCommonServiceInBoundingBox')
         }
     ]
 });

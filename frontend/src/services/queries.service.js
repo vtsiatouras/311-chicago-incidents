@@ -69,6 +69,20 @@ class QueriesService {
             .get(API_URL + 'queries/averageCompletionTimePerRequest/', {params: params, headers: authHeader()});
     }
 
+    mostCommonServiceInBoundingBox(date, a_latitude, a_longitude, b_latitude, b_longitude) {
+        const dateData = this._prepareDate(date);
+        const params = new URLSearchParams();
+        if (dateData) {
+            params.append('date', dateData);
+        }
+        params.append('a_latitude', parseFloat(a_latitude).toString())
+        params.append('a_longitude', parseFloat(a_longitude).toString())
+        params.append('b_latitude', parseFloat(b_latitude).toString())
+        params.append('b_longitude', parseFloat(b_longitude).toString())
+        return axios
+            .get(API_URL + 'queries/mostCommonServiceInBoundingBox/', {params: params, headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();

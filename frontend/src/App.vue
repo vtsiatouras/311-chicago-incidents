@@ -56,6 +56,11 @@
                 4. Average completion time per request
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/most-common-service-in-bounding-box" class="dropdown-item">
+                5. Most common service in bounding box
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>
