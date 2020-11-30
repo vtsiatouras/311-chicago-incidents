@@ -85,7 +85,25 @@ export const router = new Router({
             name: 'second-most-common-color',
             // lazy-loaded
             component: () => import('./components/queries/SecondMostCommonColor')
-        }
+        },
+        {
+            path: '/premises-baited',
+            name: 'premises-baited',
+            // lazy-loaded
+            component: () => import('./components/queries/RodentBaiting'),
+        },
+        {
+            path: '/premises-garbage',
+            name: 'premises-garbage',
+            // lazy-loaded
+            component: () => import('./components/queries/RodentBaiting'),
+        },
+        {
+            path: '/premises-rats',
+            name: 'premises-rats',
+            // lazy-loaded
+            component: () => import('./components/queries/RodentBaiting'),
+        },
     ]
 });
 

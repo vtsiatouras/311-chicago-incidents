@@ -107,6 +107,14 @@ class QueriesService {
             .get(API_URL + 'queries/secondMostCommonColor/', {headers: authHeader()});
     }
 
+    rodentBaiting(page, threshold, typeOfPremises) {
+        const params = new URLSearchParams();
+        params.append('page', parseInt(page).toString())
+        params.append('threshold', parseInt(threshold).toString())
+        params.append('type_of_premises', typeOfPremises);
+        return axios
+            .get(API_URL + 'queries/rodentBaiting/', {params: params, headers: authHeader()});
+    }
 }
 
 export default new QueriesService();

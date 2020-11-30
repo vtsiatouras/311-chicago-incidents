@@ -76,6 +76,21 @@
                 8. Second most common vehicle color
               </router-link>
             </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/premises-baited" class="dropdown-item">
+                9. Rodent baiting - baited premises
+              </router-link>
+            </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/premises-garbage" class="dropdown-item">
+                10. Rodent baiting - premises with garbage
+              </router-link>
+            </b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/premises-rats" class="dropdown-item">
+                11. Rodent baiting - premises with rats
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>
@@ -112,7 +127,7 @@
     </nav>
 
     <div class="container">
-      <router-view />
+      <router-view :key="$route.fullPath"></router-view>
     </div>
   </div>
 </template>
