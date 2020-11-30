@@ -37,6 +37,12 @@ export const router = new Router({
             name: 'create-incident',
             // lazy-loaded
             component: () => import('./components/IncidentCreate.vue')
+        },
+        {
+            path: '/total-requests-per-type',
+            name: 'total-requests-per-type',
+            // lazy-loaded
+            component: () => import('./components/queries/TotalRequestsPerType')
         }
     ]
 });

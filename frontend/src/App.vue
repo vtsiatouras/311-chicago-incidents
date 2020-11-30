@@ -31,12 +31,16 @@
 
       <div v-if="currentUser" class="navbar-nav mr-auto">
         <li class="nav-item" >
-          <b-nav-item-dropdown id="dropdown dropdown-head-button" variant="dark">
+          <b-nav-item-dropdown variant="dark">
             <template slot="button-content">
               <font-awesome-icon icon="database" />
               Queries
             </template>
-            <b-dropdown-item>1. Total requests per type</b-dropdown-item>
+            <b-dropdown-item>
+              <router-link to="/total-requests-per-type" class="dropdown-item">
+                1. Total requests per type
+              </router-link>
+            </b-dropdown-item>
           </b-nav-item-dropdown>
         </li>
       </div>
