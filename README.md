@@ -183,6 +183,8 @@ Run
 python manage.py createsuperuser
 ```
 
+The database is exposed at http://127.0.0.1:5433/
+
 The API, the Swagger page and the Admin page are available to the same addresses that referred above.
 The Vue.js client is available at http://127.0.0.1:5000/
 

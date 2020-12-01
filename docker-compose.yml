@@ -12,6 +12,8 @@ services:
       - POSTGRES_PASSWORD=${CHICAGO_INCIDENT_DATABASE_PASSWORD}
     env_file:
       - .env
+    ports:
+      - "5433:5432"
 
   api:
     container_name: api
