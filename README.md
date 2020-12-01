@@ -9,6 +9,10 @@ This repository contains 2 applications, DjangoREST &amp; Vue.js, that visualize
 All the data used for the development can be found [here](https://www.kaggle.com/chicago/chicago-311-service-requests
 ). Also I have uploaded some of these data inside this repository, which can be found [here](https://github.com/VangelisTsiatouras/311-chicago-incidents/tree/main/assist_material/datasets/zip).
 
+## Demo
+
+![demo](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/assist_material/demo.gif)
+
 ## DjangoREST Application
 
 ### Installation from source
@@ -98,10 +102,6 @@ The documentation Swagger page of the API is available at http://127.0.0.1:8000/
 Also the Django Admin page is available at http://127.0.0.1:8000/admin/
 
 ## Vue.js Application
-
-### Demo
-
-![demo](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/assist_material/demo.gif)
 
 ### Installation from source
 
