@@ -183,7 +183,7 @@ Run
 python manage.py createsuperuser
 ```
 
-The API, the Swagger page and the Admin page are avalaible to the same addresses that refered above.
+The API, the Swagger page and the Admin page are available to the same addresses that referred above.
 The Vue.js client is available at http://127.0.0.1:5000/
 
 ## Database Report
@@ -191,6 +191,37 @@ The Vue.js client is available at http://127.0.0.1:5000/
 ### Schema
 
 ![database-schema](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/assist_material/chicago_incident_development_schema_db.png)
+
+Some info about the schema and the decisions that were made in order to conclude to this state.
+
+1. The `incidents` table is the core table of the database and contains the information that is mutual to all types
+ of incidents, such as `creation_date`, `completion_date`, `service_request_number`, `type_of_service_request
+ `, `street_address`, `zip_code`, `ssa` & the info that appears to the newer API of Chicago Incident.
+
+2. The `activities` table contains `current_activity` & `most_recent_action`. The purpose of this table is to reduce
+ the duplication of data, many incidents has the same set of `current_activity` & `most_recent_action`.
+
+3. The `abandoned_vehicles` table contains `license_plate`, `vehicle_make_model`, `vehicle_color`. This table
+ created in order to avoid null fields to `incidents` table (not all incidents are `ABANDONED_VEHICLE`) and keep the
+ data about vehicles separated making the queries that are related to abandoned vehicles more efficient.
+
+4. The same concept of 3 is applied also for tree, graffiti & sanitation code violation incidents.
+
+5. The tables `abandoned_vehicles`, `trees`, `graffiti` & `sanitation_code_violations` are not connected directly to
+ `incidents` table, we use intermediate tables that holds the foreign keys of each record of each table and that way
+  we can have the same vehicle, tree, graffiti, sanitation violation appear to more than one incident without
+   holding duplicate information.
+
+6. The table `number_of_carts_and_potholes` holds the info about carts and potholes incidents at one table, because
+ the payload is just a simple integer.
+ 
+7. The tables `rodent_baiting_premises` & `number_of_carts_and_potholes` are connected directly to `incidents` table
+ by holding the foreign key to incidents to each record. This may have some duplication in the data, but it is ok
+ because the payload is just integer numbers.
+
+8. You can look the [models.py](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/backend/chicago_incidents/models.py) 
+ in order to see how actually all these are implemented and to check out the
+ indices that used on each table.
 
 ### Queries
 
@@ -238,7 +269,7 @@ The Vue.js client is available at http://127.0.0.1:5000/
     FROM "incidents"
     WHERE "incidents"."zip_code" IS NOT NULL AND "incidents"."creation_date" = ?
     GROUP BY "incidents"."zip_code", "incidents"."type_of_service_request"
-    ORDER BY "incidents"."zip_code", "number_of_requests" DESC
+    ORDER BY "incidents"."zip_code", "number_of_requests" DESC;
     ```
 
 4. Find the average completion time per service request for a specific date range.
@@ -251,7 +282,7 @@ The Vue.js client is available at http://127.0.0.1:5000/
     AND "incidents"."creation_date" >= ?
     AND "incidents"."creation_date" <= ?)
     GROUP BY "incidents"."type_of_service_request"
-    ORDER BY "incidents"."type_of_service_request" ASC
+    ORDER BY "incidents"."type_of_service_request" ASC;
     ```
 
     ```python
@@ -274,7 +305,7 @@ coordinates) for a specific day.
     AND "incidents"."longitude" <= ?)
     GROUP BY "incidents"."type_of_service_request"
     ORDER BY "number_of_requests" DESC
-    LIMIT 1
+    LIMIT 1;
     ```
 
     ```python
@@ -297,7 +328,7 @@ garbage carts, graffiti removal, pot holes reported)
     AND "incidents"."ssa" IS NOT NULL)
     GROUP BY "incidents"."ssa"
     ORDER BY "number_of_requests" DESC
-    LIMIT 5
+    LIMIT 5;
     ```
 
     ```python
@@ -333,7 +364,7 @@ than once.
     WHERE "abandoned_vehicles"."vehicle_color" IS NOT NULL
     GROUP BY "abandoned_vehicles"."vehicle_color"
     ORDER BY "color_count" DESC
-    LIMIT 1 OFFSET 1
+    LIMIT 1 OFFSET 1;
     ```
 
     ```python
@@ -352,7 +383,7 @@ number.
     FROM "incidents"
     INNER JOIN "rodent_baiting_premises"
     ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
-    WHERE "rodent_baiting_premises"."number_of_premises_baited" < ?
+    WHERE "rodent_baiting_premises"."number_of_premises_baited" < ?;
     ```
    
 10. For the Query 10 we can adapt the last line of the above query to the following
@@ -405,7 +436,7 @@ one number of premises baited, for a specific day.
     HAVING
     (SUM("number_of_carts_and_potholes"."number_of_elements") > 1
     AND SUM("rodent_baiting_premises"."number_of_premises_baited") > 1)
-    ORDER BY "incidents"."police_district" ASC
+    ORDER BY "incidents"."police_district" ASC;
     ```
     
     ```python
