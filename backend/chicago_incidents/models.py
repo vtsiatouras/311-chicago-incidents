@@ -82,7 +82,7 @@ class Incident(AutoCreatedUpdatedModel):
         indexes = [models.Index(fields=['creation_date']),
                    models.Index(fields=['completion_date']),
                    models.Index(fields=['status']),
-                   models.Index(fields=['street_address']),  # maybe is not needed
+                   models.Index(fields=['street_address']),
                    models.Index(fields=['zip_code']),
                    models.Index(fields=['type_of_service_request']),
                    models.Index(fields=['latitude']),
@@ -200,6 +200,7 @@ class NumberOfCartsAndPotholes(AutoCreatedUpdatedModel):
         verbose_name_plural = 'number of carts and potholes'
         # Constraint to avoid duplication of data
         unique_together = ['number_of_elements', 'incident']
+        indexes = [models.Index(fields=['number_of_elements']), ]
 
 
 class Graffiti(AutoCreatedUpdatedModel):
