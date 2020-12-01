@@ -180,7 +180,7 @@ python manage.py createsuperuser
 
 ### Schema
 
-![database-schema]('insertpathhere)
+![database-schema](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/assist_material/chicago_incident_development_schema_db.png)
 
 ### Queries
 
@@ -345,7 +345,7 @@ number.
     WHERE "rodent_baiting_premises"."number_of_premises_baited" < ?
     ```
    
-10. For the Query 10 we can adapt the last line of the above query to:
+10. For the Query 10 we can adapt the last line of the above query to the following
    
    ```sql
    WHERE "rodent_baiting_premises"."number_of_premises_w_garbage" < ?
