@@ -1,10 +1,10 @@
 <template>
   <div class="container">
     <header class="jumbotron">
-      <h3>Total Requests per Day</h3>
+      <h3>Most Common Service per Zipcode</h3>
       <hr class="my-4"/>
       <p>
-        Find the total requests per day for a specific request type and time range.
+        Find the most common service request per zipcode for a specific day.
       </p>
     </header>
     <form name="form" @submit.prevent="handleSubmit">

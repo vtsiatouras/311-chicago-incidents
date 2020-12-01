@@ -148,6 +148,9 @@ export default {
       userEmail: null,
     };
   },
+  created () {
+    document.title = "311 Chicago Incidents";
+  },
   computed: {
     currentUser() {
       [
