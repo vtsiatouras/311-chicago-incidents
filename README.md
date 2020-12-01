@@ -357,11 +357,12 @@ number.
    
 10. For the Query 10 we can adapt the last line of the above query to the following
    
-   ```sql
-   WHERE "rodent_baiting_premises"."number_of_premises_w_garbage" < ?
-   ```
+    ```sql
+    WHERE "rodent_baiting_premises"."number_of_premises_w_garbage" < ?
+    ```
    
-11. Similar for Query 11
+11. Similar with the Query 10
+
     ```sql
     WHERE "rodent_baiting_premises"."number_of_premises_w_rats" < ?
     ```
