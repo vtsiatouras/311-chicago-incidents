@@ -158,19 +158,10 @@ docker-compose up --build
 Then you have the database, the API & the Vue.js client up and running!
 
 In order to perform the import of the data you can log in to the running docker container and perform the process
- manually. To do that, follow the instructions below.
+ manually.
 
-Run:
 ```bash
-docker ps
-```
-
-You will have in the output a table of all running docker containers of the project. Copy the `Containter ID` of the
-image `311-chicago-incidents_api`.
-
-After that log in to the container:
-```bash
-docker exec -t -i <CONTAINER_ID> bash
+docker exec -it api bash
 ```
 
 Now you have access to all the files of the API. __You can now run the import command as mentioned above in the Local
@@ -183,7 +174,7 @@ Run
 python manage.py createsuperuser
 ```
 
-The database is exposed at http://127.0.0.1:5433/
+The database is exposed at jdbc:postgresql://localhost:5433/
 
 The API, the Swagger page and the Admin page are available to the same addresses that referred above.
 The Vue.js client is available at http://127.0.0.1:5000/
@@ -222,8 +213,7 @@ Some info about the schema and the decisions that were made in order to conclude
  because the payload is just integer numbers.
 
 8. You can look the [models.py](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/backend/chicago_incidents/models.py) 
- in order to see how actually all these are implemented and to check out the
- indices that used on each table.
+ in order to see how actually all these are implemented and to check out the indices that used on each table.
 
 ### Queries
 
@@ -290,9 +280,9 @@ Some info about the schema and the decisions that were made in order to conclude
     ```python
     queryset = Incident.objects.filter(creation_date__gte=data.get('start_date'),
                                        creation_date__lte=data.get('end_date')) \
-        .values('type_of_service_request') \
-        .annotate(average_completion_time=Avg(F('completion_date') - F('creation_date'))) \
-        .order_by('type_of_service_request')
+       .values('type_of_service_request') \
+       .annotate(average_completion_time=Avg(F('completion_date') - F('creation_date'))) \
+       .order_by('type_of_service_request')
     ```
 
 5. Find the most common service request in a specified bounding box (as designated by GPS-
