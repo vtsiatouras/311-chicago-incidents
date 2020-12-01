@@ -22,7 +22,7 @@
 
       <div v-if="currentUser" class="navbar-nav mr-auto">
         <li class="nav-item">
-          <router-link to="" class="nav-link">
+          <router-link to="/search-incidents" class="nav-link">
             <font-awesome-icon icon="search" />
             Search Incidents
           </router-link>

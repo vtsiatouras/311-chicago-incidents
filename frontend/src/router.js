@@ -36,7 +36,7 @@ export const router = new Router({
             path: '/create-incident',
             name: 'create-incident',
             // lazy-loaded
-            component: () => import('./components/IncidentCreate.vue')
+            component: () => import('./components/CreateIncident.vue')
         },
         {
             path: '/total-requests-per-type',
@@ -109,6 +109,12 @@ export const router = new Router({
             name: 'police-districts',
             // lazy-loaded
             component: () => import('./components/queries/PoliceDistricts'),
+        },
+        {
+            path: '/search-incidents',
+            name: 'search-incidents',
+            // lazy-loaded
+            component: () => import('./components/SearchIncidents'),
         }
     ]
 });

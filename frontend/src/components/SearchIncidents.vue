@@ -1,58 +1,56 @@
 <template>
   <div class="container">
     <header class="jumbotron">
-      <h3 v-if="type_of_premises === 'BAITED'">Premises Baited</h3>
-      <h3 v-if="type_of_premises === 'GARBAGE'">Premises with Garbage</h3>
-      <h3 v-if="type_of_premises === 'RATS'">Premises with Rats</h3>
+      <h3>Search Incidents</h3>
       <hr class="my-4"/>
-      <p v-if="type_of_premises === 'BAITED'">
-        Find the rodent baiting requests where the number of premises baited is less than a specified
-        number.
-      </p>
-      <p v-if="type_of_premises === 'GARBAGE'">
-        Find the rodent baiting requests where the number of premises with garbage is less than a specified
-        number.
-      </p>
-      <p v-if="type_of_premises === 'RATS'">
-        Find the rodent baiting requests where the number of premises with rats is less than a specified
-        number.
+      <p>
+        Find the incidents that happened at the specified address or zipcode.
       </p>
     </header>
     <form name="form" @submit.prevent="handleSubmit">
+      <label for="street_address">Street Address</label>
+      <b-form-input
+          class="mb-3"
+          v-model="streetAddress"
+          placeholder="Enter the Street Address"
+      >
+      </b-form-input>
+      <div
+          v-if="submitted && errors.has('street_address')"
+          class="alert-danger"
+      >
+        {{ errors.first("street_address") }}
+      </div>
+      <label for="zip_code">Zip Code</label>
+      <b-form-input
+          class="mb-3"
+          v-model="zipcode"
+          placeholder="Enter the Zip Code"
+      >
+      </b-form-input>
+      <div v-if="submitted && errors.has('zip_code')" class="alert-danger">
+        {{ errors.first("zip_code") }}
+      </div>
+      <label for="page">Page</label>
+      <b-form-input
+          class="mb-3 col-lg ml-1"
+          v-model="page"
+          placeholder="Enter the Page"
+          type="number"
+          required
+      >
+      </b-form-input>
+      <div v-if="submitted && errors.has('page')" class="alert-danger">
+        {{ errors.first("page") }}
+      </div>
       <div class="form-group">
-        <label for="threshold">Threshold</label>
-        <b-form-input
-            class="mb-3 col-lg mr-1"
-            v-model="threshold"
-            placeholder="Enter the Threshold"
-            type="number"
-        >
-        </b-form-input>
-        <div v-if="submitted && errors.has('threshold')" class="alert-danger">
-          {{ errors.first("threshold") }}
-        </div>
-        <label for="page">Page</label>
-        <b-form-input
-            class="mb-3 col-lg ml-1"
-            v-model="page"
-            placeholder="Enter the Page"
-            type="number"
-            required
-        >
-        </b-form-input>
-        <div v-if="submitted && errors.has('page')" class="alert-danger">
-          {{ errors.first("page") }}
-        </div>
-
-        <div class="form-group">
-          <button class="btn btn-primary center-block" :disabled="loading">
+        <button class="btn btn-primary center-block" :disabled="loading">
             <span
                 v-show="loading"
                 class="spinner-border spinner-border-sm"
             ></span>
-            <span>Submit</span>
-          </button>
-        </div>
+          <span>Submit</span>
+        </button>
       </div>
       <div class="form-group">
         <div v-if="message && !successful" class="alert alert-danger" role="alert">
@@ -87,11 +85,11 @@
 import QueriesService from "@/services/queries.service";
 
 export default {
-  name: "RodentBaiting",
+  name: "SearchIncidents",
   data() {
     return {
-      type_of_premises: '',
-      threshold: '',
+      streetAddress: '',
+      zipcode: '',
       page: '',
       loading: false,
       submitted: false,
@@ -123,21 +121,6 @@ export default {
       ],
     };
   },
-  beforeRouteUpdate(to) {
-    this.name = to.params.name
-  },
-  created() {
-    this.$forceUpdate()
-    const route = this.$router.currentRoute;
-    console.log(route.path)
-    if (route.path === '/premises-baited') {
-      this.type_of_premises = 'BAITED';
-    } else if (route.path === '/premises-garbage') {
-      this.type_of_premises = 'GARBAGE';
-    } else if (route.path === '/premises-rats') {
-      this.type_of_premises = 'RATS';
-    }
-  },
   methods: {
     handleSubmit() {
       this.message = '';
@@ -145,7 +128,7 @@ export default {
       this.loading = true;
       this.$validator.validate().then((isValid) => {
         if (isValid) {
-          QueriesService.rodentBaiting(this.page, this.threshold, this.type_of_premises).then(
+          QueriesService.searchIncidents(this.page, this.streetAddress, this.zipcode).then(
               (response) => {
                 this.successful = true;
                 this.message = response.data;

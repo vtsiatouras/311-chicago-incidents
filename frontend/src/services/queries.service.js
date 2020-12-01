@@ -125,6 +125,22 @@ class QueriesService {
         return axios
             .get(API_URL + 'queries/policeDistrict/', {params: params, headers: authHeader()});
     }
+
+    searchIncidents(page, address, zipcode) {
+        const params = new URLSearchParams();
+        if (address) {
+            params.append('address', address);
+        }
+        if (zipcode) {
+            const zipcodeInt = parseInt(zipcode);
+            if (zipcodeInt !== null && zipcodeInt !== undefined) {
+                params.append('zipcode', zipcodeInt.toString());
+            }
+        }
+        return axios
+            .get(API_URL + 'queries/searchByAddressZipcode/', {params: params, headers: authHeader()});
+    }
+
 }
 
 export default new QueriesService();
