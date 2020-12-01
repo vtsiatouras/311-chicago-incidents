@@ -305,7 +305,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
         # FROM "incidents"
         # INNER JOIN "rodent_baiting_premises"
         # ON ("incidents"."id" = "rodent_baiting_premises"."incident_id")
-        # WHERE "rodent_baiting_premises"."number_of_premises_baited" < 2
+        # WHERE "rodent_baiting_premises"."number_of_premises_baited" < %s
         queryset = Incident.objects.values('id', 'service_request_number', 'type_of_service_request',
                                            'street_address', 'zip_code', 'latitude', 'longitude')
         if type_of_premises == serializers.RodentBaitingParams.BAITED:
