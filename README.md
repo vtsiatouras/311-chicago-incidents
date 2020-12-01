@@ -99,6 +99,10 @@ Also the Django Admin page is available at http://127.0.0.1:8000/admin/
 
 ## Vue.js Application
 
+### Demo
+
+![demo](https://github.com/VangelisTsiatouras/311-chicago-incidents/blob/main/assist_material/demo.gif)
+
 ### Installation from source
 
 First, [Yarn](https://classic.yarnpkg.com/en/docs/install/#debian-stable) should be installed on your machine. The
