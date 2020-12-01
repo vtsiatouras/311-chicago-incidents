@@ -101,7 +101,7 @@
           >
             {{ errors.first("type_of_request") }}
           </div>
-          <label for="service_request_number">Street Address</label>
+          <label for="street_address">Street Address</label>
           <b-form-input
               class="mb-3"
               v-model="incident.street_address"

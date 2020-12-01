@@ -335,7 +335,6 @@ class QueriesViewSet(viewsets.GenericViewSet):
     )
     @action(
         methods=['get'], detail=False, url_path='policeDistrict',
-        pagination_class=pagination.Pagination,
         serializer_class=serializers.PoliceDistrictSerializer
     )
     def police_districts(self, request):
@@ -392,7 +391,7 @@ class QueriesViewSet(viewsets.GenericViewSet):
                                            'street_address', 'zip_code', 'latitude', 'longitude')
         if data.get('address'):
             queryset = queryset.filter(street_address=data.get('address'))
-        if data.get('zipcode'):
+        if data.get('zipcode') is not None:
             queryset = queryset.filter(zip_code=data.get('zipcode'))
 
         # Apply pagination to the query

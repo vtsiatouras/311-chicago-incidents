@@ -14,12 +14,15 @@ import {
     faUser,
     faUserPlus,
     faSignInAlt,
-    faSignOutAlt
+    faSignOutAlt,
+    faPlusSquare,
+    faSearch,
+    faDatabase
 } from '@fortawesome/free-solid-svg-icons';
 import axios from 'axios';
 import AuthService from './services/auth.service'
 
-library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt);
+library.add(faHome, faUser, faUserPlus, faSignInAlt, faSignOutAlt, faPlusSquare, faSearch, faDatabase);
 
 Vue.config.productionTip = false;
 
