@@ -91,7 +91,11 @@ Now you can run the web server with:
 python manage.py runserver
 ```
 
-The API is available at http://127.0.0.1:8000/
+The API is available at http://127.0.0.1:8000/api/v1/
+
+The documentation Swagger page of the API is available at http://127.0.0.1:8000/api/swagger
+
+Also the Django Admin page is available at http://127.0.0.1:8000/admin/
 
 ## Vue.js Application
 
@@ -126,6 +130,9 @@ yarn build
 ```bash
 yarn lint
 ```
+
+The application is available at http://127.0.0.1:8081/
+
 
 ## Installation using Docker
 
@@ -174,7 +181,10 @@ Also, it is recommended to create a superuser in order to have access to the `ad
 Run
 ```bash
 python manage.py createsuperuser
-``` 
+```
+
+The API, the Swagger page and the Admin page are avalaible to the same addresses that refered above.
+The Vue.js client is available at http://127.0.0.1:5000/
 
 ## Database Report
 
