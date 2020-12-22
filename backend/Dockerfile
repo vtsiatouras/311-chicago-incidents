@@ -8,15 +8,18 @@ ENV PYTHONUNBUFFERED 1
 # Create a working directory for the django project
 WORKDIR /code/api
 
+# Copy datasets
+ADD ./assist_material/ /code/assist_material
+
 # Copy requirements to the container
-COPY Pipfile Pipfile.lock /code/api/
+COPY ./backend/Pipfile ./backend/Pipfile.lock /code/api/
 
 # Install the requirements to the container
 RUN pip install pipenv
 RUN pipenv install --system --deploy
 
 # Copy the backend project files into the working directory
-ADD . /code/api/
+ADD ./backend /code/api/
 
 # Open a port on the container
 EXPOSE 8000

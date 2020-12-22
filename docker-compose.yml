@@ -18,8 +18,8 @@ services:
   api:
     container_name: api
     build:
-      context: ./backend
-      dockerfile: Dockerfile
+      context: ./
+      dockerfile: ./backend/Dockerfile
     command: bash -c "python /code/api/manage.py migrate && python /code/api/manage.py createcachetable &&
                       python /code/api/manage.py runserver 0.0.0.0:8000"
     ports:
