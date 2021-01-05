@@ -399,7 +399,7 @@ class Command(BaseCommand):
 
         if debris:
             input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
-                                'type_of_service_request', 'location', 'current_activity',
+                                'type_of_service_request', 'tree_location', 'current_activity',
                                 'most_recent_action', 'street_address', 'zip_code', 'x_coordinate', 'y_coordinate',
                                 'ward', 'police_district', 'community_area', 'latitude', 'longitude',
                                 'location', 'historical_wards_03_15', 'zip_codes', 'community_areas',
@@ -407,10 +407,10 @@ class Command(BaseCommand):
             input_df = self.dataframe_normalization(input_df, models.Incident.TREE_DEBRIS)
         else:
             input_df.columns = ['creation_date', 'status', 'completion_date', 'service_request_number',
-                                'type_of_service_request', 'location', 'street_address', 'zip_code', 'x_coordinate',
-                                'y_coordinate', 'ward', 'police_district', 'community_area', 'latitude', 'longitude',
-                                'location', 'historical_wards_03_15', 'zip_codes', 'community_areas',
-                                'census_tracts', 'wards']
+                                'type_of_service_request', 'tree_location', 'street_address', 'zip_code',
+                                'x_coordinate', 'y_coordinate', 'ward', 'police_district', 'community_area',
+                                'latitude', 'longitude', 'location', 'historical_wards_03_15', 'zip_codes',
+                                'community_areas', 'census_tracts', 'wards']
             input_df = self.dataframe_normalization(input_df, models.Incident.TREE_TRIM)
 
         incidents = list()
@@ -434,7 +434,7 @@ class Command(BaseCommand):
                 if row.location:
                     # In memory hashing with dataframe values can't be applied here because this importer runs more
                     # than one times (tree debris & tree trims)
-                    tree, _ = models.Tree.objects.get_or_create(location=row.location)
+                    tree, _ = models.Tree.objects.get_or_create(location=row.tree_location)
                     tree_incident = models.TreeIncident(tree=tree, incident=incident)
                     trees_incidents.append(tree_incident)
 
